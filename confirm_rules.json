@@ -1,0 +1,63 @@
+{
+  "levels": [
+    {
+      "name": "critical",
+      "color": "red",
+      "emoji": "💀",
+      "message": "ОПАСНАЯ КОМАНДА! Это может навредить системе.",
+      "patterns": ["rm -rf", "dd if=", "mkfs", "format", "sudo rm"],
+      "default": "n",
+      "require_typing": true
+    },
+    {
+      "name": "dangerous",
+      "color": "yellow",
+      "emoji": "⚠️",
+      "message": "Потенциально опасная операция",
+      "patterns": ["kill", "pkill", "chmod 777", "sudo", "systemctl stop"],
+      "default": "n",
+      "require_typing": false
+    },
+    {
+      "name": "file_write",
+      "color": "cyan",
+      "emoji": "📝",
+      "message": "Будет создан/изменён файл",
+      "patterns": ["echo.*>", "cat.*>", "> ", ">> ", "sed -i"],
+      "default": "y",
+      "require_typing": false
+    },
+    {
+      "name": "file_delete",
+      "color": "yellow",
+      "emoji": "🗑️",
+      "message": "Будет удалён файл/папка",
+      "patterns": ["rm ", "del ", "unlink"],
+      "default": "n",
+      "require_typing": false
+    },
+    {
+      "name": "network",
+      "color": "blue",
+      "emoji": "🌐",
+      "message": "Сетевой запрос",
+      "patterns": ["curl ", "wget ", "ping ", "ssh ", "scp "],
+      "default": "y",
+      "require_typing": false
+    },
+    {
+      "name": "install",
+      "color": "green",
+      "emoji": "📦",
+      "message": "Установка пакета",
+      "patterns": ["pip install", "npm install", "apt install", "pkg install"],
+      "default": "y",
+      "require_typing": false
+    }
+  ],
+  
+  "interactive_blocklist": [
+    "python$", "python3$", "py$", "bash$", "sh$", "zsh$",
+    "vim$", "nano$", "vi$", "top$", "htop$", "less$", "more$"
+  ]
+}

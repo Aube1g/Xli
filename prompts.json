@@ -1,0 +1,10 @@
+{
+  "review": {
+    "template": "Review code: {{input}}",
+    "version": "ed40e48e",
+    "tags": [
+      "code"
+    ],
+    "created": "2026-05-08T22:38:34.957593"
+  }
+}

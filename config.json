@@ -1,0 +1,23 @@
+{
+  "model": "llama-3.1-8b-instant",
+  "api_key": "gsk_...",
+  "max_history": 30,
+  "timeout": 30,
+  "theme": "dark",
+  
+  "confirm_mode": "smart",
+  "confirm_rules": {
+    "always": [
+      "rm -rf", "dd if=", "mkfs", "format",
+      "chmod 777", "chown", ":(){ :|:& };:",
+      "mv /*", "cp /*", "sudo rm"
+    ],
+    "file_operations": ["create", "delete", "overwrite"],
+    "dangerous": ["kill", "pkill", "killall", "systemctl stop"],
+    "interactive": ["python", "python3", "vim", "nano", "top", "htop"]
+  },
+  
+  "skip_confirm": false,
+  "default_response": "n",
+  "confirm_timeout": 30
+}
