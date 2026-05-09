@@ -1,0 +1,8 @@
+{
+  "name": "benchmark",
+  "version": "1.0.0",
+  "description": "Бенчмарк скорости",
+  "entry_point": "BenchmarkPlugin",
+  "ui": ["panel", "toolbar"],
+  "hooks": ["post_coder"]
+}

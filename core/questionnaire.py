@@ -1,6 +1,8 @@
 import json
 import re
+import asyncio
 from .mistral_client import call_mistral_agent
+
 
 async def generate_questions(task: str, agent_id: str) -> list:
     """Генерирует уточняющие вопросы через AI"""
@@ -38,6 +40,7 @@ async def generate_questions(task: str, agent_id: str) -> list:
     
     return []
 
+
 async def clarify_task_with_dialog(original_task: str, agent_id: str, app) -> tuple:
     """
     Уточняет задачу через диалоговое окно
@@ -52,16 +55,27 @@ async def clarify_task_with_dialog(original_task: str, agent_id: str, app) -> tu
     if not questions:
         return original_task, False
     
-    # Показываем диалог
+    # ✅ Исправлено: используем asyncio.Future для ожидания результата
     from widgets.questionnaire_dialog import QuestionnaireDialog
-    answers = await app.push_screen_wait(QuestionnaireDialog(questions, None))
+    
+    future = asyncio.Future()
+    
+    def on_dismiss(answers):
+        if not future.done():
+            future.set_result(answers)
+    
+    app.push_screen(QuestionnaireDialog(questions), on_dismiss)
+    
+    answers = await future
     
     if not answers:
         return original_task, True
     
     # Формируем уточнённую задачу
     enhanced = original_task + "\n\n**Уточнения от пользователя:**\n"
-    for q, a in answers.items():
-        enhanced += f"- {q} → {a}\n"
+    for q_idx, a in answers.items():
+        q_text = questions[q_idx]["question"] if q_idx < len(questions) else f"Вопрос {q_idx}"
+        enhanced += f"- {q_text} → {a}\n"
     
     return enhanced, True
+

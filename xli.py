@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-XLI PRO ULTIMATE — С интерактивным диалогом опросника
+XLI PRO ULTIMATE — Система плагинов + Умный пайплайн
 """
 
 import asyncio
@@ -22,29 +22,69 @@ from core.mistral_client import AGENT_IDS
 from core.mcp_client import get_available_servers, list_mcp_servers
 from core.agents import XliAgent
 from core.questionnaire import clarify_task_with_dialog
+from core.plugin_manager import PluginManager, get_plugin_manager
 
 console = Console()
 fig = Figlet(font='slant')
 
 CSS = """
 Screen { background: $surface; }
-.results-grid { height: 18; margin: 1; }
-.result-panel { border: solid $primary; padding: 1; margin: 1; background: $panel; overflow-y: auto; }
+
+/* Основная сетка агентов */
+.results-grid { 
+    grid-size: 3;
+    grid-columns: 1fr 1fr 1fr;
+    grid-rows: auto;
+    height: auto; 
+    margin: 1; 
+}
+.result-panel { 
+    border: solid $primary; 
+    padding: 1; 
+    margin: 1; 
+    background: $panel; 
+    overflow-y: auto; 
+    height: auto;
+}
 .result-panel.coder { border: solid cyan; }
 .result-panel.debugger { border: solid yellow; }
 .result-panel.optimizer { border: solid green; }
+
+/* Прогресс и статусы */
 .progress-bar { margin-top: 1; }
 .state-indicator { margin-top: 1; padding: 0 1; }
-.activity-log { border: solid $accent; height: 18; margin-top: 1; overflow-y: auto; background: $panel; }
-#input-panel { border: solid $primary; margin-top: 1; padding: 1; background: $panel; }
-#run-btn { width: 22; }
-#task-input { width: 1fr; }
-#status-bar { background: $panel; padding: 1; margin-top: 1; }
 .result-content { margin-top: 1; }
 
+/* Лог */
+.activity-log { 
+    border: solid $accent; 
+    height: 18; 
+    margin-top: 1; 
+    overflow-y: auto; 
+    background: $panel; 
+}
+
+/* Ввод */
+#input-panel { 
+    border: solid $primary; 
+    margin-top: 1; 
+    padding: 1; 
+    background: $panel; 
+}
+#run-btn { width: 22; }
+#task-input { width: 1fr; }
+
+/* Статус бар */
+#status-bar { 
+    background: $panel; 
+    padding: 1; 
+    margin-top: 1; 
+}
+
+/* Диалог */
 #dialog-container {
     width: 70;
-    height: 40;
+    height: auto;
     border: solid $primary;
     background: $surface;
     padding: 2;
@@ -60,7 +100,41 @@ Screen { background: $surface; }
     margin-top: 2;
     align: center middle;
 }
+
+/* ====== ПЛАГИНЫ ====== */
+#plugins-section {
+    border: solid magenta 60%;
+    height: auto;
+    margin: 1;
+    padding: 1;
+    background: $surface-darken-1;
+}
+.plugins-title {
+    text-style: bold;
+    text-align: center;
+    color: magenta;
+    margin-bottom: 1;
+}
+.plugin-toolbar {
+    height: auto;
+    align: center middle;
+    margin-top: 1;
+    margin-bottom: 1;
+}
+.plugin-panel {
+    border: solid cyan 60%;
+    padding: 1;
+    margin: 1;
+    background: $panel;
+    height: auto;
+}
+.plugin-panel-title {
+    text-style: bold;
+    color: cyan;
+    margin-bottom: 1;
+}
 """
+
 
 class XliTui(App):
     CSS = CSS
@@ -70,6 +144,7 @@ class XliTui(App):
         ("f", "focus_input", "Фокус на ввод"),
         ("m", "show_mcp", "MCP серверы"),
         ("q", "skip_questions", "Пропустить вопросы"),
+        ("p", "show_plugins", "Плагины"),
     ]
 
     def __init__(self):
@@ -79,12 +154,23 @@ class XliTui(App):
         self.response_widgets = {}
         self.log_widget = None
         self.skip_questions = False
+        self.plugin_manager = None
+        self.plugin_panels = {}
+
+        # ====== ИНИЦИАЛИЗАЦИЯ ПЛАГИНОВ ЗДЕСЬ! ======
+        # compose() вызывается ДО on_mount(), поэтому плагины
+        # должны быть загружены в __init__()
+        try:
+            self.plugin_manager = get_plugin_manager(self)
+        except Exception as e:
+            print(f"⚠️ Ошибка инициализации плагинов: {e}")
+            self.plugin_manager = None
 
         self.agents = {
             "coder": XliAgent(
                 "CODER",
                 AGENT_IDS["coder"],
-                "Ты - Кодер. Пишешь код, создаёшь файлы. Команды только в <run>. Используй ПОЛНЫЕ ПУТИ."
+                "Ты - Кодер. Пишешь код, создаешь файлы. Команды только в <run>. Используй ПОЛНЫЕ ПУТИ."
             ),
             "debugger": XliAgent(
                 "DEBUGGER",
@@ -100,7 +186,9 @@ class XliTui(App):
 
     def compose(self):
         yield Header(show_clock=True)
+
         with Container():
+            # === ШАПКА ===
             with Horizontal():
                 yield Static("🔥 XLI PRO ULTIMATE")
                 yield Static(f"📅 {datetime.now().strftime('%Y-%m-%d')}")
@@ -108,10 +196,21 @@ class XliTui(App):
                 mcp_count = len(get_available_servers())
                 yield Static(f"🔌 MCP: {mcp_count}")
 
+            # === ПЛАГИНЫ: Toolbar (кнопки над агентами) ===
+            if self.plugin_manager:
+                toolbar_widgets = self.plugin_manager.get_ui_widgets("toolbar")
+                if toolbar_widgets:
+                    with Horizontal(classes="plugin-toolbar"):
+                        for contrib in toolbar_widgets:
+                            yield contrib["widget"]
+
+            # === ОСНОВНАЯ СЕТКА: 3 агента ===
             with Grid(classes="results-grid"):
-                for agent_id, title, color in [("coder", "💻 КОДЕР", "cyan"), 
-                                                ("debugger", "🐛 ОТЛАДЧИК", "yellow"),
-                                                ("optimizer", "🚀 ОПТИМИЗАТОР", "green")]:
+                for agent_id, title, color in [
+                    ("coder", "💻 КОДЕР", "cyan"), 
+                    ("debugger", "🐛 ОТЛАДЧИК", "yellow"),
+                    ("optimizer", "🚀 ОПТИМИЗАТОР", "green")
+                ]:
                     with Vertical(classes=f"result-panel {agent_id}"):
                         yield Static(f"[bold {color}]{title}[/bold {color}]")
                         self.progress_bars[agent_id] = ProgressBar(total=100, show_percentage=False)
@@ -121,23 +220,55 @@ class XliTui(App):
                         self.response_widgets[agent_id] = Static("Ожидание...", classes="result-content")
                         yield self.response_widgets[agent_id]
 
+            # === ПЛАГИНЫ: Отдельная секция (ВНЕ Grid!) ===
+            if self.plugin_manager:
+                panel_widgets = self.plugin_manager.get_ui_widgets("panel")
+                if panel_widgets:
+                    with Container(id="plugins-section"):
+                        yield Static("🔌 ПЛАГИНЫ", classes="plugins-title")
+
+                        for contrib in panel_widgets:
+                            name = contrib["plugin"]
+                            widget = contrib["widget"]
+
+                            with Vertical(classes="plugin-panel"):
+                                yield Static(f"📦 {name}", classes="plugin-panel-title")
+                                yield widget
+                                self.plugin_panels[name] = widget
+
+            # === ЛОГ ===
             with Collapsible(title="📋 LIVE LOG", collapsed=False):
                 self.log_widget = ScrollableContainer(classes="activity-log")
                 yield self.log_widget
 
+            # === ВВОД ===
             with Horizontal(id="input-panel"):
                 self.task_input = Input(placeholder="💬 Введите задачу...", id="task-input")
                 self.run_button = Button("▶ ЗАПУСТИТЬ", variant="primary", id="run-btn")
                 yield self.task_input
                 yield self.run_button
 
-            self.status_bar = Static("💡 Enter — запуск | q — пропустить вопросы | m — MCP", id="status-bar")
+            # === СТАТУС ===
+            self.status_bar = Static(
+                "💡 Enter — запуск | q — пропустить вопросы | m — MCP | p — плагины", 
+                id="status-bar"
+            )
+
         yield Footer()
 
     def on_mount(self):
+        # Логируем загрузку плагинов
+        if self.plugin_manager:
+            count = len(self.plugin_manager.list_plugins())
+            self._log(f"🔌 Плагинов загружено: {count}", "SYS")
+
         self.set_focus(self.task_input)
         self._log("XLI PRO ULTIMATE запущен", "SYS")
         self._log(f"MCP серверов: {len(get_available_servers())}", "SYS")
+
+        # Хук on_ui_mount
+        if self.plugin_manager:
+            asyncio.create_task(self.plugin_manager.execute_hook_async("on_ui_mount", self))
 
     def _log(self, msg: str, agent: str = "SYS"):
         if not self.log_widget:
@@ -146,6 +277,9 @@ class XliTui(App):
         entry = Static(f"{timestamp} [{agent}] {msg}")
         self.log_widget.mount(entry)
         self.log_widget.scroll_end(animate=False)
+
+        if self.plugin_manager:
+            self.plugin_manager.execute_hook("on_log", msg, agent)
 
     def update_state(self, agent_key: str, state: str, progress: int):
         if agent_key in self.state_widgets:
@@ -173,78 +307,190 @@ class XliTui(App):
 
     def action_skip_questions(self):
         self.skip_questions = not self.skip_questions
-        self._log(f"Опросник {'выключен' if self.skip_questions else 'включён'}", "SYS")
+        self._log(f"Опросник {'выключен' if self.skip_questions else 'включен'}", "SYS")
+
+    def action_show_plugins(self):
+        """Показывает список плагинов"""
+        if not self.plugin_manager:
+            self._log("❌ Менеджер плагинов не загружен", "SYS")
+            return
+        plugins = self.plugin_manager.list_plugins()
+        self._log("=== ПЛАГИНЫ ===", "SYS")
+        for p in plugins:
+            status = "✅" if p.enabled else "❌"
+            self._log(f"{status} {p.name} v{p.version} — {p.description[:50]}", "PLUGIN")
+
+    def _needs_debug(self, coder_response: str) -> bool:
+        """Определяет, нужна ли отладка по ответу кодера"""
+        error_keywords = [
+            "ошибка", "error", "exception", "traceback", "bug", 
+            "не работает", "нужно исправление", "нужно исправить",
+            "syntax", "import error", "nameerror", "typeerror",
+            "valueerror", "attributeerror", "indentationerror",
+            "failed", "fail", "не удалось", "не получилось"
+        ]
+        response_lower = coder_response.lower()
+        return any(kw in response_lower for kw in error_keywords)
+
+    def _needs_optimize(self, coder_response: str, debugger_response: str = "") -> bool:
+        """Определяет, нужна ли оптимизация"""
+        optimize_keywords = [
+            "медленно", "slow", "performance", "memory leak",
+            "нужна оптимизация", "ускорить", "улучшить",
+            "inefficient", "bottleneck", "optimize", "refactor"
+        ]
+        combined = (coder_response + " " + debugger_response).lower()
+        return any(kw in combined for kw in optimize_keywords)
 
     async def run_chain(self, original_task: str):
         self.clear_results()
-        
+
         final_task = original_task
         dialog_shown = False
-        
+
+        # === ШАГ 1: Диалог уточнения ===
         if not self.skip_questions and len(original_task.split()) < 20:
             self._log("📋 Открываю диалог уточнения задачи...", "SYS")
-            final_task, dialog_shown = await clarify_task_with_dialog(original_task, AGENT_IDS["coder"], self)
-            if dialog_shown:
-                self._log("✅ Диалог завершён", "SYS")
-            if final_task != original_task:
-                self._log(f"📝 Уточнённая задача:\n{final_task[:300]}", "SYS")
-        
-        self._log(f"📌 ЗАДАЧА: {final_task[:200]}", "SYS")
-        
-        # Цикл агентов
-        max_iterations = 3
-        iteration = 0
-        context = final_task
-        completed = False
-        
-        while iteration < max_iterations and not completed:
-            iteration += 1
-            self._log(f"🔄 ИТЕРАЦИЯ {iteration}", "SYS")
-            
-            # Кодер
-            self.update_state("coder", "🟡 ПИШЕТ", 30)
-            self._log("▶ КОДЕР", "CODER")
-            coder_response = await self.agents["coder"].think(context)
-            self._log(f"Кодер:\n{coder_response[:300]}", "CODER")
-            self.update_response("coder", coder_response[:300])
-            self.update_state("coder", "🟢 ГОТОВ", 100)
-            
-            # Отладчик
-            self.update_state("debugger", "🟡 ПРОВЕРЯЕТ", 30)
-            self._log("▶ ОТЛАДЧИК", "DEBUGGER")
-            debugger_response = await self.agents["debugger"].think(
-                f"Проверь код:\n{coder_response}\nЕсли ошибок нет: 'ГОТОВО'"
+            final_task, dialog_shown = await clarify_task_with_dialog(
+                original_task, AGENT_IDS["coder"], self
             )
+            if dialog_shown:
+                self._log("✅ Диалог завершен", "SYS")
+            if final_task != original_task:
+                self._log(f"📝 Уточненная задача:\n{final_task[:300]}", "SYS")
+
+        self._log(f"📌 ЗАДАЧА: {final_task[:200]}", "SYS")
+
+        # === ШАГ 2: КОДЕР (всегда, с MCP pre/post) ===
+        self.update_state("coder", "🟡 ПИШЕТ", 30)
+        self._log("▶ КОДЕР [MCP: knowledge_base → code → auto_tester]", "CODER")
+
+        if self.plugin_manager:
+            await self.plugin_manager.execute_hook_async("pre_coder", final_task)
+
+        coder_response = await self.agents["coder"].think(final_task, use_mcp=True)
+
+        if self.plugin_manager:
+            await self.plugin_manager.execute_hook_async("post_coder", final_task, coder_response)
+
+        self._log(f"Кодер:\n{coder_response[:300]}", "CODER")
+        self.update_response("coder", coder_response[:300])
+        self.update_state("coder", "🟢 ГОТОВ", 100)
+
+        # === ШАГ 3: Проверяем, нужна ли отладка ===
+        needs_debug = self._needs_debug(coder_response)
+
+        if needs_debug:
+            self.update_state("debugger", "🟡 ПРОВЕРЯЕТ", 30)
+            self._log("▶ ОТЛАДЧИК [MCP: debugger → auto_tester]", "DEBUGGER")
+
+            if self.plugin_manager:
+                await self.plugin_manager.execute_hook_async("pre_debugger", coder_response)
+
+            debugger_response = await self.agents["debugger"].think(
+                f"Проверь код:\n{coder_response}\nЕсли ошибок нет: 'ГОТОВО'",
+                use_mcp=True
+            )
+
+            if self.plugin_manager:
+                await self.plugin_manager.execute_hook_async("post_debugger", coder_response, debugger_response)
+
             self._log(f"Отладчик:\n{debugger_response[:300]}", "DEBUGGER")
             self.update_response("debugger", debugger_response[:300])
             self.update_state("debugger", "🟢 ГОТОВ", 100)
-            
+
+            # Если отладчик нашёл ошибки — возвращаем к кодеру (1 retry)
             if "НУЖНО ИСПРАВЛЕНИЕ" in debugger_response:
-                self._log("⚠️ Возврат к Кодеру", "SYS")
-                context = debugger_response
-                continue
-            
-            # Оптимизатор
+                self._log("⚠️ Возврат к Кодеру для исправления", "SYS")
+                self.update_state("coder", "🟡 ИСПРАВЛЯЕТ", 50)
+
+                fix_task = f"Исправь ошибки:\n{debugger_response[:500]}\n\nКод:\n{coder_response[:500]}"
+                coder_response = await self.agents["coder"].think(fix_task, use_mcp=True)
+
+                self._log(f"Кодер (исправлено):\n{coder_response[:300]}", "CODER")
+                self.update_response("coder", coder_response[:300])
+                self.update_state("coder", "🟢 ИСПРАВЛЕНО", 100)
+
+                # Повторная проверка
+                needs_debug = self._needs_debug(coder_response)
+                if needs_debug:
+                    self.update_state("debugger", "⚠️ ЕЩЕ ОШИБКИ", 100)
+                    self.update_response("debugger", "Ошибки остались после исправления")
+                    self._log("❌ Ошибки не исправлены полностью", "SYS")
+        else:
+            self.update_state("debugger", "⚪ ПРОПУЩЕН", 100)
+            self.update_response("debugger", "✅ Код без ошибок")
+            self._log("✅ Код без ошибок, отладка пропущена", "SYS")
+            debugger_response = ""
+
+        # === ШАГ 4: Проверяем, нужна ли оптимизация ===
+        needs_optimize = self._needs_optimize(coder_response, debugger_response)
+
+        if needs_optimize:
             self.update_state("optimizer", "🟡 ОПТИМИЗИРУЕТ", 30)
-            self._log("▶ ОПТИМИЗАТОР", "OPTIMIZER")
+            self._log("▶ ОПТИМИЗАТОР [MCP: refactor/architecture → auto_tester]", "OPTIMIZER")
+
+            if self.plugin_manager:
+                await self.plugin_manager.execute_hook_async("pre_optimizer", coder_response)
+
             optimizer_response = await self.agents["optimizer"].think(
-                f"Оптимизируй код:\n{coder_response}"
+                f"Оптимизируй код:\n{coder_response}",
+                use_mcp=True
             )
+
+            if self.plugin_manager:
+                await self.plugin_manager.execute_hook_async("post_optimizer", coder_response, optimizer_response)
+
             self._log(f"Оптимизатор:\n{optimizer_response[:300]}", "OPTIMIZER")
             self.update_response("optimizer", optimizer_response[:300])
             self.update_state("optimizer", "🟢 ГОТОВ", 100)
-            
+
+            # Если оптимизатор предложил улучшения — применяем
             if "НУЖНА ОПТИМИЗАЦИЯ" in optimizer_response:
-                self._log("⚡ Возврат к Кодеру", "SYS")
-                context = optimizer_response
-                continue
-            
-            completed = True
-        
+                self._log("⚡ Применяю оптимизацию", "SYS")
+                self.update_state("coder", "🟡 ОПТИМИЗИРУЕТ", 60)
+
+                optimize_task = f"Примени оптимизацию:\n{optimizer_response[:500]}\n\nКод:\n{coder_response[:500]}"
+                coder_response = await self.agents["coder"].think(optimize_task, use_mcp=True)
+
+                self._log(f"Кодер (оптимизировано):\n{coder_response[:300]}", "CODER")
+                self.update_response("coder", coder_response[:300])
+                self.update_state("coder", "🟢 ОПТИМИЗИРОВАНО", 100)
+        else:
+            self.update_state("optimizer", "⚪ ПРОПУЩЕН", 100)
+            self.update_response("optimizer", "✅ Оптимизация не требуется")
+            self._log("✅ Оптимизация не требуется", "SYS")
+
+        # === Хук завершения ===
+        if self.plugin_manager:
+            await self.plugin_manager.execute_hook_async("on_task_complete", final_task, {
+                "coder": coder_response,
+                "debugger": debugger_response if needs_debug else None,
+                "optimizer": optimizer_response if needs_optimize else None,
+            })
+
         self._log("✅ ЗАДАЧА ВЫПОЛНЕНА", "SYS")
         self.status_bar.update("✅ Готово!")
 
     async def on_button_pressed(self, event: Button.Pressed):
+        # 🔌 Сначала пробуем плагины
+        plugin_handled = False
+        if self.plugin_manager:
+            for contrib in self.plugin_manager.get_ui_widgets("panel") + \
+                           self.plugin_manager.get_ui_widgets("toolbar"):
+                instance = contrib.get("instance")
+                if instance and hasattr(instance, "on_button_pressed"):
+                    try:
+                        await instance.on_button_pressed(event)
+                        plugin_handled = True
+                    except Exception as e:
+                        self._log(f"❌ Ошибка плагина: {e}", "PLUGIN")
+
+        # Если плагин обработал — останавливаемся
+        if plugin_handled:
+            return
+
+        # Стандартные кнопки
         if event.button.id == "run-btn":
             task = self.task_input.value.strip()
             if task:
@@ -276,5 +522,5 @@ if __name__ == "__main__":
                        subtitle=f"[dim]{datetime.now().strftime('%H:%M:%S')}[/dim]", subtitle_align="center"))
     console.print(f"[dim]MCP серверов: {len(get_available_servers())}[/dim]")
     console.print("")
-    
+
     XliTui().run()

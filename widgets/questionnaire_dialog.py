@@ -1,104 +1,90 @@
-from textual.app import ComposeResult
-from textual.containers import Container, Horizontal, Vertical
-from textual.widgets import Static, Button, Input, RadioButton, RadioSet, Label
 from textual.screen import ModalScreen
+from textual.containers import Container, Horizontal
+from textual.widgets import Label, RadioSet, RadioButton, Input, Button
+from textual.app import ComposeResult
+
 
 class QuestionnaireDialog(ModalScreen):
-    """Диалоговое окно для опросника с вопросами"""
+    """Модальный экран с опросником."""
+    
+    CSS = """
+    QuestionnaireDialog {
+        align: center middle;
+    }
+    #dialog-container {
+        width: 60;
+        height: auto;
+        border: thick $background 80%;
+        background: $surface;
+        padding: 1 2;
+    }
+    #dialog-question {
+        text-align: center;
+        margin-bottom: 1;
+    }
+    #dialog-content {
+        height: auto;
+        margin-bottom: 1;
+    }
+    #dialog-buttons {
+        height: auto;
+        align: center middle;
+    }
+    """
 
-    def __init__(self, questions: list, callback=None):
-        super().__init__()
+    def __init__(self, questions: list[dict], **kwargs):
         self.questions = questions
-        self.callback = callback
         self.current_q = 0
         self.answers = {}
-        self.radio_set = None
-        self.input_field = None
+        super().__init__(**kwargs)
 
     def compose(self) -> ComposeResult:
-        """Создаёт интерфейс диалога"""
         with Container(id="dialog-container"):
-            yield Label(f"📋 Вопрос {self.current_q + 1} из {len(self.questions)}", id="dialog-title")
-            yield Label(self.questions[self.current_q]["question"], id="dialog-question")
-            
-            # Содержимое для текущего вопроса
-            yield self._build_current_widget()
-            
-            # Кнопки
+            yield Label(id="dialog-question")
+            self.content_container = Container(id="dialog-content")
+            yield self.content_container
             with Horizontal(id="dialog-buttons"):
-                if self.current_q > 0:
-                    yield Button("◀ Назад", id="prev-btn", variant="default")
-                yield Button("Далее ▶", id="next-btn", variant="primary")
+                yield Button("Назад", id="btn-back", variant="primary")
+                yield Button("Далее", id="btn-next", variant="success")
 
-    def _build_current_widget(self):
-        """Создаёт виджет для текущего вопроса"""
-        q = self.questions[self.current_q]
+    def on_mount(self) -> None:
+        self._load_question()
+
+    def _load_question(self) -> None:
+        question_label = self.query_one("#dialog-question", Label)
+        question_label.update(self.questions[self.current_q]["question"])
         
-        if q.get("options"):
-            # Для вариантов ответа используем RadioSet
-            self.radio_set = RadioSet()
-            for opt in q["options"]:
-                self.radio_set.mount(RadioButton(opt))
-            return self.radio_set
+        self.content_container.remove_children()
+        
+        q = self.questions[self.current_q]
+        if "options" in q:
+            radios = [RadioButton(opt) for opt in q["options"]]
+            self.radio_set = RadioSet(*radios)
+            self.content_container.mount(self.radio_set)
         else:
-            # Для свободного ответа используем Input
-            self.input_field = Input(placeholder="Введите ответ...")
-            return self.input_field
+            self.input_widget = Input(placeholder="Ваш ответ...")
+            self.content_container.mount(self.input_widget)
 
-    def on_button_pressed(self, event: Button.Pressed):
-        """Обработка нажатия кнопок"""
-        if event.button.id == "next-btn":
+    def _save_current_answer(self) -> None:
+        q = self.questions[self.current_q]
+        if "options" in q:
+            selected = self.radio_set.pressed_index
+            self.answers[self.current_q] = selected
+        else:
+            self.answers[self.current_q] = self.input_widget.value
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        button_id = event.button.id
+        
+        if button_id == "btn-next":
             self._save_current_answer()
-            if self.current_q + 1 < len(self.questions):
+            if self.current_q < len(self.questions) - 1:
                 self.current_q += 1
-                self._refresh_dialog()
+                self._load_question()
             else:
                 self.dismiss(self.answers)
-        elif event.button.id == "prev-btn":
-            self.current_q -= 1
-            self._refresh_dialog()
+        elif button_id == "btn-back":
+            if self.current_q > 0:
+                self.current_q -= 1
+                self._load_question()
 
-    def _save_current_answer(self):
-        """Сохраняет ответ на текущий вопрос"""
-        q = self.questions[self.current_q]
-        
-        if q.get("options") and self.radio_set:
-            # Находим выбранный вариант
-            for rb in self.radio_set.query(RadioButton):
-                if rb.value:
-                    self.answers[q["question"]] = rb.label.plain
-                    break
-        elif self.input_field and self.input_field.value:
-            self.answers[q["question"]] = self.input_field.value
-
-    def _refresh_dialog(self):
-        """Обновляет диалог для следующего вопроса"""
-        q = self.questions[self.current_q]
-        
-        # Обновляем заголовки
-        self.query_one("#dialog-title").update(f"📋 Вопрос {self.current_q + 1} из {len(self.questions)}")
-        self.query_one("#dialog-question").update(q["question"])
-        
-        # Удаляем старый виджет
-        if self.radio_set:
-            self.radio_set.remove()
-            self.radio_set = None
-        if self.input_field:
-            self.input_field.remove()
-            self.input_field = None
-        
-        # Добавляем новый виджет
-        new_widget = self._build_current_widget()
-        # Вставляем перед кнопками
-        buttons = self.query_one("#dialog-buttons")
-        self.mount(new_widget, before=buttons)
-        
-        # Обновляем кнопки
-        buttons.remove_children()
-        if self.current_q > 0:
-            buttons.mount(Button("◀ Назад", id="prev-btn", variant="default"))
-        buttons.mount(Button("Далее ▶", id="next-btn", variant="primary"))
-
-    def on_key(self, event):
-        if event.key == "escape":
-            self.dismiss(None)
