@@ -4,5 +4,6 @@
   "description": "Бенчмарк скорости",
   "entry_point": "BenchmarkPlugin",
   "ui": ["panel", "toolbar"],
-  "hooks": ["post_coder"]
+  "hooks": ["post_coder"],
+  "hide_buttons": ["mcp-btn"]
 }

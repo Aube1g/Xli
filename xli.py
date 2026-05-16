@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-XLI PRO ULTIMATE — Система плагинов + Умный пайплайн
+XLI PRO ULTIMATE — С поддержкой горячей перезагрузки плагинов
 """
 
 import asyncio
@@ -22,7 +22,9 @@ from core.mistral_client import AGENT_IDS
 from core.mcp_client import get_available_servers, list_mcp_servers
 from core.agents import XliAgent
 from core.questionnaire import clarify_task_with_dialog
-from core.plugin_manager import PluginManager, get_plugin_manager
+
+# Импортируем расширенный менеджер
+from core.plugin_manager_ex import get_extended_plugin_manager
 
 console = Console()
 fig = Figlet(font='slant')
@@ -30,7 +32,6 @@ fig = Figlet(font='slant')
 CSS = """
 Screen { background: $surface; }
 
-/* Основная сетка агентов */
 .results-grid { 
     grid-size: 3;
     grid-columns: 1fr 1fr 1fr;
@@ -50,12 +51,10 @@ Screen { background: $surface; }
 .result-panel.debugger { border: solid yellow; }
 .result-panel.optimizer { border: solid green; }
 
-/* Прогресс и статусы */
 .progress-bar { margin-top: 1; }
 .state-indicator { margin-top: 1; padding: 0 1; }
 .result-content { margin-top: 1; }
 
-/* Лог */
 .activity-log { 
     border: solid $accent; 
     height: 18; 
@@ -64,7 +63,6 @@ Screen { background: $surface; }
     background: $panel; 
 }
 
-/* Ввод */
 #input-panel { 
     border: solid $primary; 
     margin-top: 1; 
@@ -74,14 +72,12 @@ Screen { background: $surface; }
 #run-btn { width: 22; }
 #task-input { width: 1fr; }
 
-/* Статус бар */
 #status-bar { 
     background: $panel; 
     padding: 1; 
     margin-top: 1; 
 }
 
-/* Диалог */
 #dialog-container {
     width: 70;
     height: auto;
@@ -101,7 +97,6 @@ Screen { background: $surface; }
     align: center middle;
 }
 
-/* ====== ПЛАГИНЫ ====== */
 #plugins-section {
     border: solid magenta 60%;
     height: auto;
@@ -145,6 +140,7 @@ class XliTui(App):
         ("m", "show_mcp", "MCP серверы"),
         ("q", "skip_questions", "Пропустить вопросы"),
         ("p", "show_plugins", "Плагины"),
+        ("ctrl+r", "reload_plugins", "Перезагрузить плагины"),  # НОВОЕ!
     ]
 
     def __init__(self):
@@ -156,12 +152,11 @@ class XliTui(App):
         self.skip_questions = False
         self.plugin_manager = None
         self.plugin_panels = {}
+        self._plugin_button_handlers = {}  # Для динамических кнопок
 
-        # ====== ИНИЦИАЛИЗАЦИЯ ПЛАГИНОВ ЗДЕСЬ! ======
-        # compose() вызывается ДО on_mount(), поэтому плагины
-        # должны быть загружены в __init__()
+        # Инициализация плагинов с расширенным менеджером
         try:
-            self.plugin_manager = get_plugin_manager(self)
+            self.plugin_manager = get_extended_plugin_manager(self)
         except Exception as e:
             print(f"⚠️ Ошибка инициализации плагинов: {e}")
             self.plugin_manager = None
@@ -188,7 +183,6 @@ class XliTui(App):
         yield Header(show_clock=True)
 
         with Container():
-            # === ШАПКА ===
             with Horizontal():
                 yield Static("🔥 XLI PRO ULTIMATE")
                 yield Static(f"📅 {datetime.now().strftime('%Y-%m-%d')}")
@@ -196,7 +190,7 @@ class XliTui(App):
                 mcp_count = len(get_available_servers())
                 yield Static(f"🔌 MCP: {mcp_count}")
 
-            # === ПЛАГИНЫ: Toolbar (кнопки над агентами) ===
+            # Toolbar плагинов
             if self.plugin_manager:
                 toolbar_widgets = self.plugin_manager.get_ui_widgets("toolbar")
                 if toolbar_widgets:
@@ -204,7 +198,7 @@ class XliTui(App):
                         for contrib in toolbar_widgets:
                             yield contrib["widget"]
 
-            # === ОСНОВНАЯ СЕТКА: 3 агента ===
+            # Сетка агентов
             with Grid(classes="results-grid"):
                 for agent_id, title, color in [
                     ("coder", "💻 КОДЕР", "cyan"), 
@@ -220,55 +214,71 @@ class XliTui(App):
                         self.response_widgets[agent_id] = Static("Ожидание...", classes="result-content")
                         yield self.response_widgets[agent_id]
 
-            # === ПЛАГИНЫ: Отдельная секция (ВНЕ Grid!) ===
+            # Панели плагинов
             if self.plugin_manager:
                 panel_widgets = self.plugin_manager.get_ui_widgets("panel")
                 if panel_widgets:
                     with Container(id="plugins-section"):
                         yield Static("🔌 ПЛАГИНЫ", classes="plugins-title")
-
                         for contrib in panel_widgets:
                             name = contrib["plugin"]
                             widget = contrib["widget"]
-
                             with Vertical(classes="plugin-panel"):
                                 yield Static(f"📦 {name}", classes="plugin-panel-title")
                                 yield widget
                                 self.plugin_panels[name] = widget
 
-            # === ЛОГ ===
+            # Лог
             with Collapsible(title="📋 LIVE LOG", collapsed=False):
                 self.log_widget = ScrollableContainer(classes="activity-log")
                 yield self.log_widget
 
-            # === ВВОД ===
+            # Ввод
             with Horizontal(id="input-panel"):
                 self.task_input = Input(placeholder="💬 Введите задачу...", id="task-input")
                 self.run_button = Button("▶ ЗАПУСТИТЬ", variant="primary", id="run-btn")
                 yield self.task_input
                 yield self.run_button
 
-            # === СТАТУС ===
             self.status_bar = Static(
-                "💡 Enter — запуск | q — пропустить вопросы | m — MCP | p — плагины", 
+                "💡 Enter — запуск | q — пропустить вопросы | m — MCP | p — плагины | Ctrl+R — перезагрузка плагинов", 
                 id="status-bar"
             )
 
         yield Footer()
 
     def on_mount(self):
-        # Логируем загрузку плагинов
         if self.plugin_manager:
             count = len(self.plugin_manager.list_plugins())
             self._log(f"🔌 Плагинов загружено: {count}", "SYS")
+            # Скрываем кнопки согласно манифестам
+            self._apply_plugin_button_visibility()
 
         self.set_focus(self.task_input)
         self._log("XLI PRO ULTIMATE запущен", "SYS")
         self._log(f"MCP серверов: {len(get_available_servers())}", "SYS")
 
-        # Хук on_ui_mount
         if self.plugin_manager:
             asyncio.create_task(self.plugin_manager.execute_hook_async("on_ui_mount", self))
+
+    def _apply_plugin_button_visibility(self):
+        """Скрывает стандартные кнопки по запросу плагинов"""
+        if not self.plugin_manager:
+            return
+        
+        hidden_buttons = set()
+        for plugin in self.plugin_manager.list_plugins():
+            if hasattr(plugin, 'config') and 'hide_buttons' in plugin.config:
+                for btn_id in plugin.config['hide_buttons']:
+                    hidden_buttons.add(btn_id)
+        
+        for btn_id in hidden_buttons:
+            try:
+                btn = self.query_one(f"#{btn_id}")
+                btn.display = False
+                self._log(f"🔘 Кнопка {btn_id} скрыта по запросу плагина", "SYS")
+            except:
+                pass
 
     def _log(self, msg: str, agent: str = "SYS"):
         if not self.log_widget:
@@ -296,6 +306,69 @@ class XliTui(App):
             self.update_response(key, "Ожидание...")
             self.update_state(key, "⚪ ОЖИДАНИЕ", 0)
 
+    # ========== НОВЫЕ ДЕЙСТВИЯ ==========
+    
+    def action_reload_plugins(self):
+        """Горячая перезагрузка всех плагинов (Ctrl+R)"""
+        asyncio.create_task(self._reload_plugins_async())
+    
+    async def _reload_plugins_async(self):
+        self._log("🔄 Перезагрузка плагинов...", "SYS")
+        
+        # Удаляем старые UI панели
+        for name, panel in list(self.plugin_panels.items()):
+            try:
+                await panel.remove()
+            except:
+                pass
+        self.plugin_panels.clear()
+        
+        # Удаляем кнопки из тулбара
+        try:
+            toolbar = self.query_one(".plugin-toolbar")
+            await toolbar.remove_children()
+        except:
+            pass
+        
+        # Пересоздаём менеджер
+        from core.plugin_manager_ex import get_extended_plugin_manager
+        self.plugin_manager = get_extended_plugin_manager(self, force_reload=True)
+        
+        # Пересоздаём UI плагинов
+        if self.plugin_manager:
+            # Тулбар
+            toolbar_widgets = self.plugin_manager.get_ui_widgets("toolbar")
+            if toolbar_widgets:
+                try:
+                    toolbar_container = self.query_one(".plugin-toolbar")
+                    for contrib in toolbar_widgets:
+                        await toolbar_container.mount(contrib["widget"])
+                except:
+                    # Если тулбара нет, создаём
+                    with Horizontal(classes="plugin-toolbar"):
+                        for contrib in toolbar_widgets:
+                            yield contrib["widget"]
+            
+            # Панели
+            panel_widgets = self.plugin_manager.get_ui_widgets("panel")
+            if panel_widgets:
+                plugins_section = self.query_one("#plugins-section")
+                if plugins_section:
+                    for contrib in panel_widgets:
+                        name = contrib["plugin"]
+                        widget = contrib["widget"]
+                        with Vertical(classes="plugin-panel"):
+                            yield Static(f"📦 {name}", classes="plugin-panel-title")
+                            yield widget
+                            self.plugin_panels[name] = widget
+                else:
+                    self._log("⚠️ Секция плагинов не найдена", "SYS")
+        
+        self._apply_plugin_button_visibility()
+        self._log(f"✅ Перезагружено {len(self.plugin_manager.list_plugins())} плагинов", "SYS")
+    
+    # ========== ОСТАЛЬНЫЕ МЕТОДЫ (без изменений) ==========
+    
     def action_show_mcp(self):
         servers = list_mcp_servers()
         if not servers:
@@ -310,7 +383,6 @@ class XliTui(App):
         self._log(f"Опросник {'выключен' if self.skip_questions else 'включен'}", "SYS")
 
     def action_show_plugins(self):
-        """Показывает список плагинов"""
         if not self.plugin_manager:
             self._log("❌ Менеджер плагинов не загружен", "SYS")
             return
@@ -321,7 +393,6 @@ class XliTui(App):
             self._log(f"{status} {p.name} v{p.version} — {p.description[:50]}", "PLUGIN")
 
     def _needs_debug(self, coder_response: str) -> bool:
-        """Определяет, нужна ли отладка по ответу кодера"""
         error_keywords = [
             "ошибка", "error", "exception", "traceback", "bug", 
             "не работает", "нужно исправление", "нужно исправить",
@@ -333,7 +404,6 @@ class XliTui(App):
         return any(kw in response_lower for kw in error_keywords)
 
     def _needs_optimize(self, coder_response: str, debugger_response: str = "") -> bool:
-        """Определяет, нужна ли оптимизация"""
         optimize_keywords = [
             "медленно", "slow", "performance", "memory leak",
             "нужна оптимизация", "ускорить", "улучшить",
@@ -348,7 +418,6 @@ class XliTui(App):
         final_task = original_task
         dialog_shown = False
 
-        # === ШАГ 1: Диалог уточнения ===
         if not self.skip_questions and len(original_task.split()) < 20:
             self._log("📋 Открываю диалог уточнения задачи...", "SYS")
             final_task, dialog_shown = await clarify_task_with_dialog(
@@ -361,7 +430,7 @@ class XliTui(App):
 
         self._log(f"📌 ЗАДАЧА: {final_task[:200]}", "SYS")
 
-        # === ШАГ 2: КОДЕР (всегда, с MCP pre/post) ===
+        # Кодер
         self.update_state("coder", "🟡 ПИШЕТ", 30)
         self._log("▶ КОДЕР [MCP: knowledge_base → code → auto_tester]", "CODER")
 
@@ -377,7 +446,7 @@ class XliTui(App):
         self.update_response("coder", coder_response[:300])
         self.update_state("coder", "🟢 ГОТОВ", 100)
 
-        # === ШАГ 3: Проверяем, нужна ли отладка ===
+        # Отладчик
         needs_debug = self._needs_debug(coder_response)
 
         if needs_debug:
@@ -399,7 +468,6 @@ class XliTui(App):
             self.update_response("debugger", debugger_response[:300])
             self.update_state("debugger", "🟢 ГОТОВ", 100)
 
-            # Если отладчик нашёл ошибки — возвращаем к кодеру (1 retry)
             if "НУЖНО ИСПРАВЛЕНИЕ" in debugger_response:
                 self._log("⚠️ Возврат к Кодеру для исправления", "SYS")
                 self.update_state("coder", "🟡 ИСПРАВЛЯЕТ", 50)
@@ -411,7 +479,6 @@ class XliTui(App):
                 self.update_response("coder", coder_response[:300])
                 self.update_state("coder", "🟢 ИСПРАВЛЕНО", 100)
 
-                # Повторная проверка
                 needs_debug = self._needs_debug(coder_response)
                 if needs_debug:
                     self.update_state("debugger", "⚠️ ЕЩЕ ОШИБКИ", 100)
@@ -423,7 +490,7 @@ class XliTui(App):
             self._log("✅ Код без ошибок, отладка пропущена", "SYS")
             debugger_response = ""
 
-        # === ШАГ 4: Проверяем, нужна ли оптимизация ===
+        # Оптимизатор
         needs_optimize = self._needs_optimize(coder_response, debugger_response)
 
         if needs_optimize:
@@ -445,7 +512,6 @@ class XliTui(App):
             self.update_response("optimizer", optimizer_response[:300])
             self.update_state("optimizer", "🟢 ГОТОВ", 100)
 
-            # Если оптимизатор предложил улучшения — применяем
             if "НУЖНА ОПТИМИЗАЦИЯ" in optimizer_response:
                 self._log("⚡ Применяю оптимизацию", "SYS")
                 self.update_state("coder", "🟡 ОПТИМИЗИРУЕТ", 60)
@@ -461,7 +527,6 @@ class XliTui(App):
             self.update_response("optimizer", "✅ Оптимизация не требуется")
             self._log("✅ Оптимизация не требуется", "SYS")
 
-        # === Хук завершения ===
         if self.plugin_manager:
             await self.plugin_manager.execute_hook_async("on_task_complete", final_task, {
                 "coder": coder_response,
@@ -473,7 +538,16 @@ class XliTui(App):
         self.status_bar.update("✅ Готово!")
 
     async def on_button_pressed(self, event: Button.Pressed):
-        # 🔌 Сначала пробуем плагины
+        # Обработка динамических кнопок плагинов
+        if hasattr(self, "_plugin_button_handlers") and event.button.id in self._plugin_button_handlers:
+            handler = self._plugin_button_handlers[event.button.id]
+            if asyncio.iscoroutinefunction(handler):
+                await handler(event)
+            else:
+                handler(event)
+            return
+        
+        # Обработка стандартных плагинов
         plugin_handled = False
         if self.plugin_manager:
             for contrib in self.plugin_manager.get_ui_widgets("panel") + \
@@ -486,11 +560,9 @@ class XliTui(App):
                     except Exception as e:
                         self._log(f"❌ Ошибка плагина: {e}", "PLUGIN")
 
-        # Если плагин обработал — останавливаемся
         if plugin_handled:
             return
 
-        # Стандартные кнопки
         if event.button.id == "run-btn":
             task = self.task_input.value.strip()
             if task:
