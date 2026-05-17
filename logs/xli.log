@@ -1,0 +1,13 @@
+[11:16:02] [INFO] [xli:notify:148] Notify [info]: Clarifying task...
+[11:16:45] [INFO] [xli:notify:148] Notify [info]: Task clarified
+[11:16:45] [INFO] [xli:notify:148] Notify [info]: CODER writing code...
+[11:16:56] [INFO] [xli:run_shell:161] Shell: cat > /data/data/com.termux/files/home/.xli/show_text.sh << 'EOF'
+#!/bin/bash
+
+#
+[11:16:56] [INFO] [xli:run_shell:161] Shell: /data/data/com.termux/files/home/.xli/show_text.sh "Ваш текст здесь"
+[11:16:57] [INFO] [xli:run_shell:161] Shell: ln -s /data/data/com.termux/files/home/.xli/show_text.sh ~/bin/show_text
+[11:16:57] [INFO] [xli:notify:148] Notify [info]: Coder done
+[11:16:57] [INFO] [xli:notify:148] Notify [warn]: DEBUGGER checking...
+[11:17:05] [INFO] [xli:run_shell:161] Shell: mkdir -p ~/bin && ln -s /data/data/com.termux/files/home/.xli/show_text.sh ~/bin
+[11:17:05] [INFO] [xli:notify:148] Notify [info]: TASK COMPLETE

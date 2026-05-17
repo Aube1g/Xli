@@ -31,3 +31,328 @@
 
 # 2026-04-30 19:39:26.477688
 +/exit
+[2026-05-17 11:16:57] [CODER] Создай скрипт
+
+[SCRIPT_TYPE]: bash
+
+[PURPOSE]: другое
+
+[OS]: кроссплатформенный
+
+[DETAILS]: просто показ текста любого
+
+MCP:
+[knowledge_base] ❌ search_code() got an unexpected keyword argument 'code'
+
+
+
+📚 **Доступные навыки:**
+
+### python-code-style-skill_SKILL
+---
+name: python-code-style
+description: Python code style, linting, formatting, naming conventions, and documentation standards. Use when writing new code, reviewing style, configuring linters, writing docstrings, or establishing project standards.
+---
+
+# Python Code Style & Documentation
+
+Consistent code style and clear documentation make codebases maintainable and collaborative. This skill covers modern Python tooling, naming conventions, and documentation standards.
+
+## When to Use This Skill
+
+- Setting up linting and formatting for a new project
+- Writing or reviewing docstrings
+- Establi...
+
+### data-pipeline-builder_SKILL
+---
+name: data-pipeline-builder
+description: Designs and builds ETL/ELT data pipelines. Takes data sources, destination, transformation requirements. Generates pipeline code (Python/SQL), scheduling config, error handling, monitoring setup, and data quality checks. Outputs data-pipeline-spec.md + implementation files.
+tools: Read, Write, Edit, Glob, Grep, Bash
+model: inherit
+---
+
+# Data Pipeline Builder
+
+You are an expert data engineer specializing in designing and implementing production-grade ETL/ELT data pipelines. Your job is to take a set of data sources, a destination, and transformation...
+
+### full-codebase-migrator_SKILL
+---
+name: full-codebase-migrator
+description: Uses 1M context window to ingest an entire codebase and output a file-by-file migration plan. Supports JS to TS, React class to hooks, framework migrations, and more. Generates migration-plan.md with file inventory, dependency graph, migration order, file-by-file changes, estimated effort, and risk assessment.
+tools: Read, Glob, Grep, Write, Bash, Agent
+user_invocable: true
+---
+
+# Full Codebase Migrator
+
+A production-grade migration planning system that leverages the full 1M token context window to ingest an entire codebase, understand its architec...
+
+### writing-python-skill_SKILL
+---
+name: writing-python
+description: Idiomatic Python 3.14+ development. Use when writing Python code, CLI tools, scripts, or services. Emphasizes stdlib, type hints, uv/ruff toolchain, and minimal dependencies.
+allowed-tools: Read, Bash, Grep, Glob
+---
+
+# Python Development (3.14+)
+
+## Core Principles
+
+- **Stdlib first**: External deps only when justified
+- **Type hints everywhere**: All functions, all parameters
+- **Explicit over implicit**: Clear is better than clever
+- **Fail fast**: Raise early with informative errors
+
+## Toolchain
+
+```bash
+uv           # Package management (not pip/poet...
+
+### justfile-skill_SKILL
+---
+name: justfile-skill
+description: |
+  Create, edit, and maintain justfiles using the `just` command runner. Use this skill whenever
+  the user mentions justfiles, just recipes, just command runner, or wants to migrate from
+  Makefile/make to just. Also trigger when the user has a justfile in their project and asks
+  about running, organizing, or documenting project commands. Covers migration from make,
+  recipe design, variable patterns, dotenv integration, and cross-platform support.
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob
+---
+
+# Just Command Runner Skill
+
+`just` is a command r...
+
+### python-configuration-skill_SKILL
+---
+name: python-configuration
+description: Python configuration management via environment variables and typed settings. Use when externalizing config, setting up pydantic-settings, managing secrets, or implementing environment-specific behavior.
+---
+
+# Python Configuration Management
+
+Externalize configuration from code using environment variables and typed settings. Well-managed configuration enables the same code to run in any environment without modification.
+
+## When to Use This Skill
+
+- Setting up a new project's configuration system
+- Migrating from hardcoded values to environment vari...
+
+  -> $ cat > /data/data/com.termux/files/home/.xli/show_text.sh << 'EOF'
+#!/bin/bash
+
+# Простой скрипт для отображения текста
+# Кросс-платформенный (работает в Termux, Linux, macOS)
+
+# Проверяем, передан л
+[2026-05-17 11:17:05] [DEBUGGER] Check code:
+Создам простой кросс-платформенный bash-скрипт для отображения текста. Вот содержимое:
+
+<SHELL>
+cat > /data/data/com.termux/files/home/.xli/show_text.sh << 'EOF'
+#!/bin/bash
+
+# Простой скрипт для отображения текста
+# Кросс-платформенный (работает в Termux, Linux, macOS)
+
+# Проверяем, передан ли аргумент
+if [ $# -eq 0 ]; then
+    echo "Использование: $0 \"Ваш текст\""
+    echo "Пример: $0 \"Привет, мир!\""
+    exit 1
+fi
+
+# Отображаем переданный текст
+echo "Вывод текста:"
+echo "-------------"
+echo "$1"
+echo "-------------"
+
+# Дополнительная информация
+echo ""
+echo "Скрипт выполнен успешно!"
+echo "Платформа: $(uname -o 2>/dev/null || uname -s)"
+EOF
+
+# Делаем скрипт исполняемым
+chmod +x /data/data/com.termux/files/home/.xli/show_text.sh
+</SHELL>
+
+Теперь вы можете использовать скрипт так:
+<SHELL>/data/data/com.termux/files/home/.xli/show_text.sh "Ваш текст здесь"</SHELL>
+
+Или сделать его доступным из любого места:
+<SHELL>
+ln -s /data/data/com.termux/files/home/.xli/show_text.sh ~/bin/show_text
+</SHELL>
+(предварительно создав директорию ~/bin если ее нет)
+
+RESULT:
+$ cat > /data/data/com.termux/files/home/.xli/show_text.sh << 'EOF'
+#!/bin/bash
+
+# Простой скрипт для отображения текста
+# Кросс-платформенный (работает в Termux, Linux, macOS)
+
+# Проверяем, передан ли аргумент
+if [ $# -eq 0 ]; then
+    echo "Использование: $0 \"Ваш текст\""
+    echo "Пример: $0 \"Привет, мир!\""
+    exit 1
+fi
+
+# Отображаем переданный текст
+echo "Вывод текста:"
+echo "-------------"
+echo "$1"
+echo "-------------"
+
+# Дополнительная информация
+echo ""
+echo "Скрипт выполнен успешно!"
+echo "Платформа: $(uname -o 2>/dev/null || uname -s)"
+EOF
+
+# Делаем скрипт исполняемым
+chmod +x /data/data/com.termux/files/home/.xli/show_text.sh
+OK exit 0
+
+$ /data/data/com.termux/files/home/.xli/show_text.sh "Ваш текст здесь"
+OK exit 0
+Вывод текста:
+-------------
+Ваш текст здесь
+-------------
+
+Скрипт выполнен успешно!
+Платформа: Android
+
+$ ln -s /data/data/com.termux/files/home/.xli/show_text.sh ~/bin/show_text
+FAIL exit 1
+ln: failed to create symbolic link '/data/data/com.termux/files/home/bin/show_text': No such file or directory
+If no errors: 'DONE'
+
+MCP:
+[debugger] ❌ analyze_traceback() got an unexpected keyword argument 'query'
+
+
+
+📚 **Доступные навыки:**
+
+### systematic-debugging_SKILL
+---
+name: systematic-debugging
+description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes
+---
+
+# Systematic Debugging
+
+## Overview
+
+Random fixes waste time and create new bugs. Quick patches mask underlying issues.
+
+**Core principle:** ALWAYS find root cause before attempting fixes. Symptom fixes are failure.
+
+**Violating the letter of this process is violating the spirit of debugging.**
+
+## The Iron Law
+
+```
+NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
+```
+
+If you haven't completed Phase 1, you cannot propose fixes.
+
+## When to Use
+
+Use for ANY...
+
+### docker-debugger_SKILL
+---
+name: docker-debugger
+description: Debug Docker containers, fix Dockerfile issues, optimize images, and troubleshoot docker-compose. Use when having Docker problems, container issues, or optimizing Docker builds.
+---
+
+# Docker Debugger
+
+## Instructions
+
+When debugging Docker issues:
+
+1. **Identify the problem type**: Build, runtime, networking, or performance
+2. **Gather information** using diagnostic commands
+3. **Analyze logs and errors**
+4. **Apply fixes**
+
+## Diagnostic Commands
+
+```bash
+# Check running containers
+docker ps -a
+
+# View container logs
+docker logs <container_id> --tail 10...
+
+### regex-debugger_SKILL
+---
+name: regex-visual-debugger
+description: Debug regex patterns with visual breakdowns, plain English explanations, test case generation, and flavor conversion. Use when user needs help with regular expressions or pattern matching.
+---
+
+# Regex Visual Debugger
+
+Interactive regex testing, explanation, and debugging tool.
+
+## When to Use This Skill
+
+Activate when the user:
+- Provides a regex pattern to debug
+- Asks "why isn't my regex working?"
+- Needs a regex pattern explained
+- Wants to test regex against strings
+- Asks to convert regex between flavors (Python, JS, etc.)
+- Needs regex patter...
+
+### security-pentest-planner_SKILL
+---
+name: security-pentest-planner
+description: Plans security penetration tests for web applications. Analyzes codebase, API routes, auth implementation, and infrastructure config to generate comprehensive pentest plans. For authorized testing only.
+tools: Read, Glob, Grep, Bash
+model: inherit
+---
+
+# Security Penetration Test Planner
+
+You are a senior application security engineer and penetration testing consultant. Your job is to analyze a target web application's codebase, API surface, authentication mechanisms, and infrastructure configuration, then produce a comprehensive penetration test...
+
+### overnight-repo-auditor_SKILL
+---
+name: overnight-repo-auditor
+description: Uses Managed Agents' 14.5-hour runtime to audit an entire codebase overnight. Security, performance, accessibility, dependency issues. You wake up to a full report.
+tools: Read, Grep, Glob, Bash, Agent, Write
+model: inherit
+---
+
+# Overnight Repo Auditor
+
+A production-grade autonomous codebase auditor designed for Anthropic's Managed Agents runtime (14.5-hour task horizon). You invoke this skill before leaving work. By morning, you have a comprehensive, severity-rated report covering security vulnerabilities, performance bottlenecks, accessibility v...
+
+### python-error-handling-skill_SKILL
+---
+name: python-error-handling
+description: Python error handling patterns including input validation, exception hierarchies, and partial failure handling. Use when implementing validation logic, designing exception strategies, handling batch processing failures, or building robust APIs.
+---
+
+# Python Error Handling
+
+Build robust Python applications with proper input validation, meaningful exceptions, and graceful failure handling. Good error handling makes debugging easier and systems more reliable.
+
+## When to Use This Skill
+
+- Validating user input and API parameters
+- Designing exception ...
+
+  -> $ mkdir -p ~/bin && ln -s /data/data/com.termux/files/home/.xli/show_text.sh ~/bin/show_text
+OK exit 0

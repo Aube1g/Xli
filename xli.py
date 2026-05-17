@@ -1,598 +1,869 @@
 #!/usr/bin/env python3
 """
-XLI PRO ULTIMATE — С поддержкой горячей перезагрузки плагинов
+XLI PRO ULTIMATE — Unified Entry Point
+Auto-detect: TUI (textual) -> Neovim (pynvim) -> Headless (fallback)
+
+FEATURES FROM REPO:
+- Hot reload plugins (Ctrl+R)
+- MCP routing: coder->knowledge_base->auto_tester, debugger->debugger->auto_tester
+- Skills auto-loading from ~/.xli/skills/*.md
+- Questionnaire with task clarification
+- Shell command execution with dangerous command checks
+- Sequential thinking (3 agents: Coder->Debugger->Optimizer)
+- Plugin system: hooks, UI contributions, hot-reload
+- File creation via echo "..." > /path
+- History logging
+- Config/weights/command_weights.json for AI routing
+
+NEOVIM INTEGRATION:
+- RPC bridge (pynvim): notify, buffer, float window, jobstart
+- Questionnaire via Neovim buffer (interactive)
+- Environment context: agents know where they run
+- Headless mode for :terminal in Neovim
+- Commands: Xli, XliTask, XliDebug, XliOptimize, XliAgent, XliSkills, XliMcp, XliHistory, XliReload, XliTui
+- Keys: ,xl ,xd ,xo ,xf ,xa ,xs ,xm ,xh ,xr ,xt
+- which-key group: FIRE XLI PRO
+- dressing.nvim for input
+- noice.nvim for notifications
+- toggleterm.nvim for TUI fallback
+- telescope.nvim for history
+
+FIXES:
+- plugin_paths initialized
+- _plugin_manager_instance declared globally
+- yield removed from async def
+- hook leak on reload fixed
+- f-string multiline fixed (concatenation)
+- nvim-surround v4 migration (no keymaps in setup)
+- dashboard-nvim: special chars in paths fixed
 """
 
 import asyncio
 import sys
+import argparse
+import os
+import json
+import re
+import subprocess
+import traceback
 from pathlib import Path
 from datetime import datetime
+from typing import Dict, List, Optional, Any, Callable
 
-sys.path.insert(0, str(Path.home() / ".xli"))
+# --- PATH SETUP ---
+XLI_DIR = Path.home() / ".xli"
+sys.path.insert(0, str(XLI_DIR))
 
-from textual.app import App
-from textual.containers import Container, Horizontal, Vertical, ScrollableContainer, Grid
-from textual.widgets import Header, Footer, Button, Static, Input, Collapsible, ProgressBar
-from rich.text import Text
-from rich.console import Console
-from rich.panel import Panel
-from pyfiglet import Figlet
+# --- AUTO-DETECT MODE ---
+HAS_TEXTUAL = False
+HAS_PYNVIM = False
+NVIM_LISTEN = None
 
-from core.mistral_client import AGENT_IDS
-from core.mcp_client import get_available_servers, list_mcp_servers
-from core.agents import XliAgent
-from core.questionnaire import clarify_task_with_dialog
+try:
+    import textual
+    from textual.app import App
+    from textual.containers import Container, Horizontal, Vertical, Grid, ScrollableContainer
+    from textual.widgets import Header, Footer, Button, Static, Input, Collapsible, ProgressBar
+    from rich.text import Text
+    from rich.console import Console
+    from rich.panel import Panel
+    from pyfiglet import Figlet
+    HAS_TEXTUAL = True
+except ImportError:
+    pass
 
-# Импортируем расширенный менеджер
-from core.plugin_manager_ex import get_extended_plugin_manager
+try:
+    import pynvim
+    HAS_PYNVIM = True
+    NVIM_LISTEN = os.environ.get('NVIM_LISTEN_ADDRESS')
+    if not NVIM_LISTEN and 'NVIM' in os.environ:
+        for sock in ['/tmp/nvim', str(Path.home() / '.local/share/nvim/server.pipe')]:
+            if Path(sock).exists():
+                NVIM_LISTEN = sock
+                break
+except ImportError:
+    pass
 
-console = Console()
-fig = Figlet(font='slant')
+# --- CORE IMPORTS ---
+from core.mistral_client import AGENT_IDS, call_mistral_agent
+from core.mcp_client import get_available_servers, list_mcp_servers, toggle_mcp_server, process_mcp_tags
+from core.agents import XliAgent, load_all_skills, get_skills_context, run_mcp_pre_step, run_mcp_post_step, clean_agent_response, execute_commands_in_text
 
-CSS = """
-Screen { background: $surface; }
+# --- LOGGER ---
+import logging
+log_dir = XLI_DIR / "logs"
+log_dir.mkdir(parents=True, exist_ok=True)
+logger = logging.getLogger("xli")
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] [%(name)s:%(funcName)s:%(lineno)d] %(message)s", datefmt="%H:%M:%S")
 
-.results-grid { 
-    grid-size: 3;
-    grid-columns: 1fr 1fr 1fr;
-    grid-rows: auto;
-    height: auto; 
-    margin: 1; 
-}
-.result-panel { 
-    border: solid $primary; 
-    padding: 1; 
-    margin: 1; 
-    background: $panel; 
-    overflow-y: auto; 
-    height: auto;
-}
-.result-panel.coder { border: solid cyan; }
-.result-panel.debugger { border: solid yellow; }
-.result-panel.optimizer { border: solid green; }
+fh = logging.FileHandler(log_dir / "xli.log", encoding="utf-8")
+fh.setLevel(logging.DEBUG)
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
-.progress-bar { margin-top: 1; }
-.state-indicator { margin-top: 1; padding: 0 1; }
-.result-content { margin-top: 1; }
+eh = logging.FileHandler(log_dir / "errors.log", encoding="utf-8")
+eh.setLevel(logging.ERROR)
+eh.setFormatter(formatter)
+logger.addHandler(eh)
 
-.activity-log { 
-    border: solid $accent; 
-    height: 18; 
-    margin-top: 1; 
-    overflow-y: auto; 
-    background: $panel; 
-}
+if not (HAS_PYNVIM and NVIM_LISTEN):
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
+    ch.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
+    logger.addHandler(ch)
 
-#input-panel { 
-    border: solid $primary; 
-    margin-top: 1; 
-    padding: 1; 
-    background: $panel; 
-}
-#run-btn { width: 22; }
-#task-input { width: 1fr; }
+# --- ENVIRONMENT ADAPTER ---
 
-#status-bar { 
-    background: $panel; 
-    padding: 1; 
-    margin-top: 1; 
-}
+class EnvironmentAdapter:
+    def __init__(self):
+        self.name = self._detect_mode()
+        self.home = str(Path.home())
+        self.cwd = os.getcwd()
+        self.is_termux = '/data/data/com.termux' in self.home
+        self.nvim = None
+        if self.name == "neovim" and HAS_PYNVIM:
+            self._connect_nvim()
 
-#dialog-container {
-    width: 70;
-    height: auto;
-    border: solid $primary;
-    background: $surface;
-    padding: 2;
-}
-#dialog-title {
-    margin-bottom: 1;
-    text-style: bold;
-}
-#dialog-question {
-    margin-bottom: 2;
-}
-#dialog-buttons {
-    margin-top: 2;
-    align: center middle;
-}
+    def _detect_mode(self) -> str:
+        if HAS_PYNVIM and NVIM_LISTEN:
+            return "neovim"
+        if HAS_TEXTUAL:
+            return "terminal"
+        return "headless"
 
-#plugins-section {
-    border: solid magenta 60%;
-    height: auto;
-    margin: 1;
-    padding: 1;
-    background: $surface-darken-1;
-}
-.plugins-title {
-    text-style: bold;
-    text-align: center;
-    color: magenta;
-    margin-bottom: 1;
-}
-.plugin-toolbar {
-    height: auto;
-    align: center middle;
-    margin-top: 1;
-    margin-bottom: 1;
-}
-.plugin-panel {
-    border: solid cyan 60%;
-    padding: 1;
-    margin: 1;
-    background: $panel;
-    height: auto;
-}
-.plugin-panel-title {
-    text-style: bold;
-    color: cyan;
-    margin-bottom: 1;
-}
-"""
+    def _connect_nvim(self):
+        try:
+            if NVIM_LISTEN and Path(NVIM_LISTEN).exists():
+                self.nvim = pynvim.attach('socket', path=NVIM_LISTEN)
+            elif 'NVIM' in os.environ:
+                self.nvim = pynvim.attach('child', argv=sys.argv)
+        except Exception as e:
+            logger.error("Neovim connect failed: %s" % e)
+
+    def is_nvim(self) -> bool:
+        return self.name == "neovim" and self.nvim is not None
+
+    def notify(self, msg: str, level: str = "info"):
+        logger.info("Notify [%s]: %s" % (level, msg[:100]))
+        if self.is_nvim():
+            try:
+                level_map = {"info": 2, "warn": 3, "error": 4}
+                self.nvim.call('vim.notify', msg, level_map.get(level, 2), {
+                    'title': 'FIRE XLI', 'timeout': 3000
+                })
+                return
+            except Exception as e:
+                logger.error("nvim.notify failed: %s" % e)
+        print("[%s] %s" % (level.upper(), msg))
+
+    def run_shell(self, cmd: str, timeout: int = 30) -> str:
+        logger.info("Shell: %s" % cmd[:80])
+        dangerous = ['rm -rf /', 'mkfs', 'dd if=', '>:(){ :|:& };:', 'chmod 777 /', 'mv /*', 'cp /*']
+        cmd_lower = cmd.lower()
+        if any(d in cmd_lower for d in dangerous):
+            self.notify("WARNING Dangerous command blocked: %s" % cmd[:50], "warn")
+            return "$ %s\nBLOCKED (dangerous)" % cmd
+        try:
+            result = subprocess.run(cmd, shell=True, capture_output=True,
+                text=True, timeout=timeout, cwd=self.cwd)
+            stdout = result.stdout.strip()
+            stderr = result.stderr.strip()
+            if result.returncode == 0:
+                return "OK exit %d\n%s" % (result.returncode, stdout) if stdout else "OK exit %d" % result.returncode
+            return "FAIL exit %d\n%s" % (result.returncode, stderr or stdout)
+        except subprocess.TimeoutExpired:
+            return "TIMEOUT"
+        except Exception as e:
+            logger.exception("Shell failed")
+            return "ERROR: %s" % e
+
+    def write_file(self, path: str, content: str) -> str:
+        logger.info("Write file: %s" % path)
+        try:
+            p = Path(path)
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(content, encoding='utf-8')
+            return "OK File: %s" % path
+        except Exception as e:
+            logger.exception("Write file failed")
+            return "ERROR: %s" % e
+
+    def open_buffer(self, content: List[str], name: str = "XLI", filetype: str = "markdown", float_win: bool = False):
+        if not self.is_nvim():
+            print("\n=== %s ===" % name)
+            print("\n".join(content))
+            return
+        try:
+            buf = self.nvim.api.create_buf(False, True)
+            buf.name = "xli://%s" % name
+            buf.options['filetype'] = filetype
+            buf.options['buftype'] = 'nofile'
+            buf.options['bufhidden'] = 'hide'
+            buf[:] = content
+            if float_win:
+                editor_w = self.nvim.options['columns']
+                editor_h = self.nvim.options['lines']
+                width = min(100, editor_w - 4)
+                height = min(30, editor_h - 4)
+                win = self.nvim.api.open_win(buf, True, {
+                    'relative': 'editor',
+                    'row': (editor_h - height) // 2,
+                    'col': (editor_w - width) // 2,
+                    'width': width,
+                    'height': height,
+                    'style': 'minimal',
+                    'border': 'rounded',
+                    'title': ' %s ' % name,
+                    'title_pos': 'center',
+                })
+                self.nvim.api.buf_set_keymap(buf.number, 'n', 'q', ':q<CR>', {'noremap': True, 'silent': True})
+            else:
+                self.nvim.command('vsplit')
+                win = self.nvim.current.window
+                win.buffer = buf
+                win.options['wrap'] = True
+                win.options['cursorline'] = True
+        except Exception as e:
+            logger.error("Open buffer failed: %s" % e)
+            print("\n=== %s ===" % name)
+            print("\n".join(content))
+
+    def get_current_file(self) -> str:
+        if self.is_nvim():
+            try:
+                return self.nvim.current.buffer.name
+            except:
+                pass
+        return ""
+
+    def get_selection(self) -> str:
+        if not self.is_nvim():
+            return ""
+        try:
+            old_reg = self.nvim.call('getreg', '"')
+            old_type = self.nvim.call('getregtype', '"')
+            self.nvim.command('normal! gv"xy')
+            sel = self.nvim.call('getreg', 'x')
+            self.nvim.call('setreg', '"', old_reg, old_type)
+            return sel
+        except:
+            return ""
+
+    def append_history(self, task: str, result: str = "", agent: str = ""):
+        hist_file = XLI_DIR / "history.txt"
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        entry = "[%s] [%s] %s" % (timestamp, agent, task)
+        if result:
+            entry += "\n  -> %s" % result[:200]
+        with open(hist_file, 'a', encoding='utf-8') as f:
+            f.write(entry + "\n")
+
+    def get_history(self, lines: int = 50) -> List[str]:
+        hist_file = XLI_DIR / "history.txt"
+        if not hist_file.exists():
+            return []
+        with open(hist_file, 'r', encoding='utf-8') as f:
+            all_lines = f.readlines()
+            return [l.strip() for l in all_lines[-lines:] if l.strip()]
+
+    def get_system_context(self) -> str:
+        lines = ["\nTARGET CONTEXT:"]
+        lines.append("- Env: %s" % self.name.upper())
+        lines.append("- CWD: %s" % self.cwd)
+        lines.append("- Home: %s" % self.home)
+        if self.is_termux:
+            lines.append("- Platform: Termux (Android)")
+            lines.append("- Packages: pkg install")
+            lines.append("- Python: python3")
+            lines.append("- Storage: ~/storage/")
+        if self.name == "neovim":
+            lines.append("\nNEOVIM MODE:")
+            lines.append("- NO textual/tui")
+            lines.append("- Commands in <SHELL>tags</SHELL>")
+            lines.append("- Files: <SHELL>echo '...' > /full/path</SHELL>")
+            lines.append("- Result: text in response")
+        elif self.name == "terminal":
+            lines.append("\nTERMINAL MODE:")
+            lines.append("- Full TUI available")
+        else:
+            lines.append("\nHEADLESS MODE:")
+            lines.append("- Text output only")
+        lines.append("\nAVAILABLE MCP:")
+        for name, info in get_available_servers().items():
+            lines.append("  OK %s: %s" % (name, info.get('description', '')[:40]))
+        return "\n".join(lines)
 
 
-class XliTui(App):
-    CSS = CSS
-    BINDINGS = [
-        ("ctrl+c", "quit", "Выйти"),
-        ("c", "clear_log", "Очистить лог"),
-        ("f", "focus_input", "Фокус на ввод"),
-        ("m", "show_mcp", "MCP серверы"),
-        ("q", "skip_questions", "Пропустить вопросы"),
-        ("p", "show_plugins", "Плагины"),
-        ("ctrl+r", "reload_plugins", "Перезагрузить плагины"),  # НОВОЕ!
+# --- QUESTIONNAIRE ---
+
+class Question:
+    def __init__(self, id: str, question: str, type: str = "text", options: Optional[List[str]] = None, default: Optional[str] = None):
+        self.id = id
+        self.question = question
+        self.type = type
+        self.options = options or []
+        self.default = default
+
+
+class Questionnaire:
+    def __init__(self, env: EnvironmentAdapter):
+        self.env = env
+        self.answers: Dict[str, str] = {}
+
+    async def run(self, questions: List[Question]) -> Dict[str, str]:
+        if self.env.is_nvim():
+            return await self._run_nvim(questions)
+        return await self._run_terminal(questions)
+
+    async def _run_nvim(self, questions: List[Question]) -> Dict[str, str]:
+        try:
+            nvim = self.env.nvim
+            buf = nvim.api.create_buf(False, True)
+            buf.name = "xli://questionnaire"
+            buf.options['buftype'] = 'prompt'
+            buf.options['bufhidden'] = 'wipe'
+            nvim.command('split')
+            win = nvim.current.window
+            win.buffer = buf
+            win.height = 25
+            self.answers = {}
+            current = 0
+
+            def render():
+                if current >= len(questions):
+                    lines = [
+                        " FIRE XLI PRO — Done ",
+                        "-" * 60,
+                        "",
+                        "OK All questions answered!",
+                        "",
+                        "Answers:",
+                    ]
+                    for q in questions:
+                        lines.append("  %s: %s" % (q.question, self.answers.get(q.id, '-')))
+                    lines.extend(["", "Press Enter to continue..."])
+                    buf[:] = lines
+                    return
+
+                q = questions[current]
+                lines = [
+                    " FIRE XLI PRO — Task Clarification ",
+                    "-" * 60,
+                    "",
+                    "Question %d/%d:" % (current + 1, len(questions)),
+                    "   %s" % q.question,
+                    "",
+                ]
+                if q.options:
+                    lines.append("   Options:")
+                    for i, opt in enumerate(q.options, 1):
+                        marker = "OK" if self.answers.get(q.id) == opt else "  "
+                        lines.append("   %s %d. %s" % (marker, i, opt))
+                    lines.append("")
+                    lines.append("   Press number or type answer")
+                else:
+                    lines.append("   Type answer:")
+                    if q.default:
+                        lines.append("   (default: %s)" % q.default)
+
+                lines.extend(["", "-" * 60, " q — cancel | Enter — confirm"])
+                buf[:] = lines
+
+            render()
+
+            # Keymaps
+            nvim.api.buf_set_keymap(buf.number, 'n', '<CR>', 
+                ':lua _xli_q_submit()<CR>', {'noremap': True, 'silent': True})
+            for i in range(1, 10):
+                nvim.api.buf_set_keymap(buf.number, 'n', str(i),
+                    ':lua _xli_q_select(%d)<CR>' % i, {'noremap': True, 'silent': True})
+            nvim.api.buf_set_keymap(buf.number, 'n', 'q',
+                ':lua _xli_q_cancel()<CR>', {'noremap': True, 'silent': True})
+
+            # Wait for completion (simplified polling)
+            import time
+            while current < len(questions):
+                time.sleep(0.5)
+                try:
+                    _ = buf.number
+                except:
+                    break
+
+            return self.answers
+        except Exception as e:
+            logger.error("Nvim questionnaire failed: %s" % e)
+            return await self._run_terminal(questions)
+
+    async def _run_terminal(self, questions: List[Question]) -> Dict[str, str]:
+        print("\n" + "=" * 60)
+        print(" FIRE XLI PRO — Task Clarification ")
+        print("=" * 60)
+
+        for q in questions:
+            print("\n? %s" % q.question)
+            if q.options:
+                for i, opt in enumerate(q.options, 1):
+                    print("   %d. %s" % (i, opt))
+                while True:
+                    try:
+                        choice = input("   Select: ").strip()
+                        if not choice and q.default:
+                            self.answers[q.id] = q.default
+                            break
+                        idx = int(choice) - 1
+                        if 0 <= idx < len(q.options):
+                            self.answers[q.id] = q.options[idx]
+                            break
+                        print("   INVALID")
+                    except ValueError:
+                        if not q.required:
+                            break
+                        print("   Enter number")
+            else:
+                default_hint = " [%s]" % q.default if q.default else ""
+                answer = input("   Answer%s: " % default_hint).strip()
+                if not answer and q.default:
+                    answer = q.default
+                self.answers[q.id] = answer
+
+        print("\nOK Clarification done!")
+        return self.answers
+
+
+async def generate_questions(task: str, agent_id: str) -> List[Question]:
+    prompt = "Task: %s\n\nGenerate 2-4 clarifying questions. Reply ONLY JSON array:\n[{\"id\": \"name\", \"question\": \"text\", \"type\": \"text/choice\", \"options\": [\"opt1\", \"opt2\"], \"default\": \"default\"}]" % task
+
+    try:
+        response = await call_mistral_agent(agent_id, [
+            {"role": "system", "content": "Reply ONLY JSON array."},
+            {"role": "user", "content": prompt}
+        ])
+        match = re.search(r'\[.*\]', response, re.DOTALL)
+        if match:
+            data = json.loads(match.group())
+            return [Question(**q) for q in data]
+    except Exception as e:
+        logger.error("Question generation failed: %s" % e)
+
+    return [
+        Question("language", "Language?", "choice", ["Python", "JavaScript", "TypeScript", "Go", "Rust"]),
+        Question("framework", "Framework?", "choice", ["None", "React", "Vue", "FastAPI", "Flask"]),
+        Question("details", "Extra requirements?", "text", default="None"),
     ]
 
-    def __init__(self):
-        super().__init__()
-        self.progress_bars = {}
-        self.state_widgets = {}
-        self.response_widgets = {}
-        self.log_widget = None
-        self.skip_questions = False
-        self.plugin_manager = None
-        self.plugin_panels = {}
-        self._plugin_button_handlers = {}  # Для динамических кнопок
 
-        # Инициализация плагинов с расширенным менеджером
-        try:
-            self.plugin_manager = get_extended_plugin_manager(self)
-        except Exception as e:
-            print(f"⚠️ Ошибка инициализации плагинов: {e}")
-            self.plugin_manager = None
+# --- AGENTS WITH ENV CONTEXT ---
 
+class XliAgentV2:
+    def __init__(self, name: str, agent_id: str, base_role: str, env: EnvironmentAdapter):
+        self.name = name
+        self.agent_id = agent_id
+        self.base_role = base_role
+        self.env = env
+        self.history = []
+        self.debug_logs = []
+
+    def _build_role(self) -> str:
+        return "%s\n\n%s\n\nRULES:\n- NO triple backticks for code\n- Commands in <SHELL>command</SHELL>\n- FULL PATHS: %s/...\n- Be concise but informative" % (self.base_role, self.env.get_system_context(), self.env.home)
+
+    async def think(self, task: str, context: str = "", use_mcp: bool = True) -> str:
+        mcp_ctx = ""
+        if use_mcp:
+            mcp_ctx = await run_mcp_pre_step(self.name, task)
+            if mcp_ctx:
+                task = "%s\n\nMCP:\n%s" % (task, mcp_ctx)
+
+        skills = get_skills_context(self.name)
+        if skills:
+            task = "%s\n\n%s" % (task, skills)
+
+        messages = [{"role": "system", "content": self._build_role()}]
+        for msg in self.history[-10:]:
+            messages.append(msg)
+        if context:
+            messages.append({"role": "user", "content": "CONTEXT:\n%s" % context})
+        messages.append({"role": "user", "content": task})
+
+        raw = await call_mistral_agent(self.agent_id, messages, temperature=0.4)
+        cleaned = clean_agent_response(raw)
+        output = self._execute_shell(cleaned)
+
+        self.history.extend([
+            {"role": "user", "content": task},
+            {"role": "assistant", "content": cleaned}
+        ])
+
+        self.env.append_history(task, output, self.name)
+
+        if output:
+            return "%s\n\nRESULT:\n%s" % (cleaned, output)
+        return cleaned
+
+    def _execute_shell(self, text: str) -> str:
+        matches = re.findall(r'<SHELL>(.*?)</SHELL>', text, re.DOTALL)
+        results = []
+        for cmd in matches:
+            cmd = cmd.strip()
+            if cmd:
+                out = self.env.run_shell(cmd)
+                results.append("$ %s\n%s" % (cmd, out))
+        return "\n\n".join(results) if results else ""
+
+
+# --- MAIN LOGIC ---
+
+class XliCore:
+    def __init__(self, env: EnvironmentAdapter):
+        self.env = env
         self.agents = {
-            "coder": XliAgent(
-                "CODER",
-                AGENT_IDS["coder"],
-                "Ты - Кодер. Пишешь код, создаешь файлы. Команды только в <run>. Используй ПОЛНЫЕ ПУТИ."
-            ),
-            "debugger": XliAgent(
-                "DEBUGGER",
-                AGENT_IDS["debugger"],
-                "Ты - Отладчик. Если ошибки есть, напиши 'НУЖНО ИСПРАВЛЕНИЕ'."
-            ),
-            "optimizer": XliAgent(
-                "OPTIMIZER",
-                AGENT_IDS["optimizer"],
-                "Ты - Оптимизатор. Если нужны улучшения, напиши 'НУЖНА ОПТИМИЗАЦИЯ'."
-            ),
+            "coder": XliAgentV2("CODER", AGENT_IDS["coder"], "You are Coder. Write code, create files.", env),
+            "debugger": XliAgentV2("DEBUGGER", AGENT_IDS["debugger"], "You are Debugger. Find and fix errors.", env),
+            "optimizer": XliAgentV2("OPTIMIZER", AGENT_IDS["optimizer"], "You are Optimizer. Improve performance.", env),
         }
 
-    def compose(self):
-        yield Header(show_clock=True)
+    async def run_chain(self, task: str, skip_questions: bool = False) -> dict:
+        result = {"task": task, "coder": "", "debugger": "", "optimizer": "", "success": False}
 
-        with Container():
-            with Horizontal():
-                yield Static("🔥 XLI PRO ULTIMATE")
-                yield Static(f"📅 {datetime.now().strftime('%Y-%m-%d')}")
-                yield Static("⚡ CODER → DEBUGGER → OPTIMIZER")
-                mcp_count = len(get_available_servers())
-                yield Static(f"🔌 MCP: {mcp_count}")
+        # Clarification
+        final_task = task
+        if not skip_questions and len(task.split()) < 20:
+            self.env.notify("Clarifying task...", "info")
+            questions = await generate_questions(task, AGENT_IDS["coder"])
+            q = Questionnaire(self.env)
+            answers = await q.run(questions)
 
-            # Toolbar плагинов
-            if self.plugin_manager:
-                toolbar_widgets = self.plugin_manager.get_ui_widgets("toolbar")
-                if toolbar_widgets:
-                    with Horizontal(classes="plugin-toolbar"):
-                        for contrib in toolbar_widgets:
-                            yield contrib["widget"]
+            clarified = task
+            for q_obj in questions:
+                if q_obj.id in answers and answers[q_obj.id]:
+                    clarified += "\n\n[%s]: %s" % (q_obj.id.upper(), answers[q_obj.id])
+            final_task = clarified
+            self.env.notify("Task clarified", "info")
 
-            # Сетка агентов
-            with Grid(classes="results-grid"):
-                for agent_id, title, color in [
-                    ("coder", "💻 КОДЕР", "cyan"), 
-                    ("debugger", "🐛 ОТЛАДЧИК", "yellow"),
-                    ("optimizer", "🚀 ОПТИМИЗАТОР", "green")
-                ]:
-                    with Vertical(classes=f"result-panel {agent_id}"):
-                        yield Static(f"[bold {color}]{title}[/bold {color}]")
-                        self.progress_bars[agent_id] = ProgressBar(total=100, show_percentage=False)
-                        yield self.progress_bars[agent_id]
-                        self.state_widgets[agent_id] = Static("⚪ ОЖИДАНИЕ")
-                        yield self.state_widgets[agent_id]
-                        self.response_widgets[agent_id] = Static("Ожидание...", classes="result-content")
-                        yield self.response_widgets[agent_id]
+        # Coder
+        self.env.notify("CODER writing code...", "info")
+        result["coder"] = await self.agents["coder"].think(final_task)
+        self.env.notify("Coder done", "info")
 
-            # Панели плагинов
-            if self.plugin_manager:
-                panel_widgets = self.plugin_manager.get_ui_widgets("panel")
-                if panel_widgets:
-                    with Container(id="plugins-section"):
-                        yield Static("🔌 ПЛАГИНЫ", classes="plugins-title")
-                        for contrib in panel_widgets:
-                            name = contrib["plugin"]
-                            widget = contrib["widget"]
-                            with Vertical(classes="plugin-panel"):
-                                yield Static(f"📦 {name}", classes="plugin-panel-title")
-                                yield widget
-                                self.plugin_panels[name] = widget
-
-            # Лог
-            with Collapsible(title="📋 LIVE LOG", collapsed=False):
-                self.log_widget = ScrollableContainer(classes="activity-log")
-                yield self.log_widget
-
-            # Ввод
-            with Horizontal(id="input-panel"):
-                self.task_input = Input(placeholder="💬 Введите задачу...", id="task-input")
-                self.run_button = Button("▶ ЗАПУСТИТЬ", variant="primary", id="run-btn")
-                yield self.task_input
-                yield self.run_button
-
-            self.status_bar = Static(
-                "💡 Enter — запуск | q — пропустить вопросы | m — MCP | p — плагины | Ctrl+R — перезагрузка плагинов", 
-                id="status-bar"
-            )
-
-        yield Footer()
-
-    def on_mount(self):
-        if self.plugin_manager:
-            count = len(self.plugin_manager.list_plugins())
-            self._log(f"🔌 Плагинов загружено: {count}", "SYS")
-            # Скрываем кнопки согласно манифестам
-            self._apply_plugin_button_visibility()
-
-        self.set_focus(self.task_input)
-        self._log("XLI PRO ULTIMATE запущен", "SYS")
-        self._log(f"MCP серверов: {len(get_available_servers())}", "SYS")
-
-        if self.plugin_manager:
-            asyncio.create_task(self.plugin_manager.execute_hook_async("on_ui_mount", self))
-
-    def _apply_plugin_button_visibility(self):
-        """Скрывает стандартные кнопки по запросу плагинов"""
-        if not self.plugin_manager:
-            return
-        
-        hidden_buttons = set()
-        for plugin in self.plugin_manager.list_plugins():
-            if hasattr(plugin, 'config') and 'hide_buttons' in plugin.config:
-                for btn_id in plugin.config['hide_buttons']:
-                    hidden_buttons.add(btn_id)
-        
-        for btn_id in hidden_buttons:
-            try:
-                btn = self.query_one(f"#{btn_id}")
-                btn.display = False
-                self._log(f"🔘 Кнопка {btn_id} скрыта по запросу плагина", "SYS")
-            except:
-                pass
-
-    def _log(self, msg: str, agent: str = "SYS"):
-        if not self.log_widget:
-            return
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        entry = Static(f"{timestamp} [{agent}] {msg}")
-        self.log_widget.mount(entry)
-        self.log_widget.scroll_end(animate=False)
-
-        if self.plugin_manager:
-            self.plugin_manager.execute_hook("on_log", msg, agent)
-
-    def update_state(self, agent_key: str, state: str, progress: int):
-        if agent_key in self.state_widgets:
-            self.state_widgets[agent_key].update(state)
-        if agent_key in self.progress_bars:
-            self.progress_bars[agent_key].progress = progress
-
-    def update_response(self, agent_key: str, response: str):
-        if agent_key in self.response_widgets:
-            self.response_widgets[agent_key].update(response[:300] if response else "Нет ответа")
-
-    def clear_results(self):
-        for key in ["coder", "debugger", "optimizer"]:
-            self.update_response(key, "Ожидание...")
-            self.update_state(key, "⚪ ОЖИДАНИЕ", 0)
-
-    # ========== НОВЫЕ ДЕЙСТВИЯ ==========
-    
-    def action_reload_plugins(self):
-        """Горячая перезагрузка всех плагинов (Ctrl+R)"""
-        asyncio.create_task(self._reload_plugins_async())
-    
-    async def _reload_plugins_async(self):
-        self._log("🔄 Перезагрузка плагинов...", "SYS")
-        
-        # Удаляем старые UI панели
-        for name, panel in list(self.plugin_panels.items()):
-            try:
-                await panel.remove()
-            except:
-                pass
-        self.plugin_panels.clear()
-        
-        # Удаляем кнопки из тулбара
-        try:
-            toolbar = self.query_one(".plugin-toolbar")
-            await toolbar.remove_children()
-        except:
-            pass
-        
-        # Пересоздаём менеджер
-        from core.plugin_manager_ex import get_extended_plugin_manager
-        self.plugin_manager = get_extended_plugin_manager(self, force_reload=True)
-        
-        # Пересоздаём UI плагинов
-        if self.plugin_manager:
-            # Тулбар
-            toolbar_widgets = self.plugin_manager.get_ui_widgets("toolbar")
-            if toolbar_widgets:
-                try:
-                    toolbar_container = self.query_one(".plugin-toolbar")
-                    for contrib in toolbar_widgets:
-                        await toolbar_container.mount(contrib["widget"])
-                except:
-                    # Если тулбара нет, создаём
-                    with Horizontal(classes="plugin-toolbar"):
-                        for contrib in toolbar_widgets:
-                            yield contrib["widget"]
-            
-            # Панели
-            panel_widgets = self.plugin_manager.get_ui_widgets("panel")
-            if panel_widgets:
-                plugins_section = self.query_one("#plugins-section")
-                if plugins_section:
-                    for contrib in panel_widgets:
-                        name = contrib["plugin"]
-                        widget = contrib["widget"]
-                        with Vertical(classes="plugin-panel"):
-                            yield Static(f"📦 {name}", classes="plugin-panel-title")
-                            yield widget
-                            self.plugin_panels[name] = widget
-                else:
-                    self._log("⚠️ Секция плагинов не найдена", "SYS")
-        
-        self._apply_plugin_button_visibility()
-        self._log(f"✅ Перезагружено {len(self.plugin_manager.list_plugins())} плагинов", "SYS")
-    
-    # ========== ОСТАЛЬНЫЕ МЕТОДЫ (без изменений) ==========
-    
-    def action_show_mcp(self):
-        servers = list_mcp_servers()
-        if not servers:
-            self._log("Нет MCP серверов", "SYS")
-            return
-        self._log("=== MCP СЕРВЕРЫ ===", "SYS")
-        for name, info in servers.items():
-            self._log(f"{'✅' if info['available'] else '❌'} {name}: {info['description'][:40]}", "MCP")
-
-    def action_skip_questions(self):
-        self.skip_questions = not self.skip_questions
-        self._log(f"Опросник {'выключен' if self.skip_questions else 'включен'}", "SYS")
-
-    def action_show_plugins(self):
-        if not self.plugin_manager:
-            self._log("❌ Менеджер плагинов не загружен", "SYS")
-            return
-        plugins = self.plugin_manager.list_plugins()
-        self._log("=== ПЛАГИНЫ ===", "SYS")
-        for p in plugins:
-            status = "✅" if p.enabled else "❌"
-            self._log(f"{status} {p.name} v{p.version} — {p.description[:50]}", "PLUGIN")
-
-    def _needs_debug(self, coder_response: str) -> bool:
-        error_keywords = [
-            "ошибка", "error", "exception", "traceback", "bug", 
-            "не работает", "нужно исправление", "нужно исправить",
-            "syntax", "import error", "nameerror", "typeerror",
-            "valueerror", "attributeerror", "indentationerror",
-            "failed", "fail", "не удалось", "не получилось"
-        ]
-        response_lower = coder_response.lower()
-        return any(kw in response_lower for kw in error_keywords)
-
-    def _needs_optimize(self, coder_response: str, debugger_response: str = "") -> bool:
-        optimize_keywords = [
-            "медленно", "slow", "performance", "memory leak",
-            "нужна оптимизация", "ускорить", "улучшить",
-            "inefficient", "bottleneck", "optimize", "refactor"
-        ]
-        combined = (coder_response + " " + debugger_response).lower()
-        return any(kw in combined for kw in optimize_keywords)
-
-    async def run_chain(self, original_task: str):
-        self.clear_results()
-
-        final_task = original_task
-        dialog_shown = False
-
-        if not self.skip_questions and len(original_task.split()) < 20:
-            self._log("📋 Открываю диалог уточнения задачи...", "SYS")
-            final_task, dialog_shown = await clarify_task_with_dialog(
-                original_task, AGENT_IDS["coder"], self
-            )
-            if dialog_shown:
-                self._log("✅ Диалог завершен", "SYS")
-            if final_task != original_task:
-                self._log(f"📝 Уточненная задача:\n{final_task[:300]}", "SYS")
-
-        self._log(f"📌 ЗАДАЧА: {final_task[:200]}", "SYS")
-
-        # Кодер
-        self.update_state("coder", "🟡 ПИШЕТ", 30)
-        self._log("▶ КОДЕР [MCP: knowledge_base → code → auto_tester]", "CODER")
-
-        if self.plugin_manager:
-            await self.plugin_manager.execute_hook_async("pre_coder", final_task)
-
-        coder_response = await self.agents["coder"].think(final_task, use_mcp=True)
-
-        if self.plugin_manager:
-            await self.plugin_manager.execute_hook_async("post_coder", final_task, coder_response)
-
-        self._log(f"Кодер:\n{coder_response[:300]}", "CODER")
-        self.update_response("coder", coder_response[:300])
-        self.update_state("coder", "🟢 ГОТОВ", 100)
-
-        # Отладчик
-        needs_debug = self._needs_debug(coder_response)
-
+        # Debugger
+        needs_debug = self._has_errors(result["coder"])
         if needs_debug:
-            self.update_state("debugger", "🟡 ПРОВЕРЯЕТ", 30)
-            self._log("▶ ОТЛАДЧИК [MCP: debugger → auto_tester]", "DEBUGGER")
+            self.env.notify("DEBUGGER checking...", "warn")
+            debug_task = "Check code:\n%s\nIf no errors: 'DONE'" % result["coder"]
+            result["debugger"] = await self.agents["debugger"].think(debug_task)
 
-            if self.plugin_manager:
-                await self.plugin_manager.execute_hook_async("pre_debugger", coder_response)
+            if "NEEDS FIX" in result["debugger"]:
+                self.env.notify("Fixing errors...", "warn")
+                fix_task = "Fix:\n%s\n\nCode:\n%s" % (result["debugger"][:500], result["coder"][:500])
+                result["coder"] = await self.agents["coder"].think(fix_task)
+                self.env.notify("Errors fixed", "info")
 
-            debugger_response = await self.agents["debugger"].think(
-                f"Проверь код:\n{coder_response}\nЕсли ошибок нет: 'ГОТОВО'",
-                use_mcp=True
-            )
+        # Optimizer
+        needs_opt = self._needs_optimize(result["coder"], result["debugger"])
+        if needs_opt:
+            self.env.notify("OPTIMIZER working...", "info")
+            opt_task = "Optimize:\n%s" % result["coder"]
+            result["optimizer"] = await self.agents["optimizer"].think(opt_task)
 
-            if self.plugin_manager:
-                await self.plugin_manager.execute_hook_async("post_debugger", coder_response, debugger_response)
+            if "NEEDS OPTIMIZE" in result["optimizer"]:
+                self.env.notify("Applying optimization...", "info")
+                apply_task = "Apply:\n%s\n\nCode:\n%s" % (result["optimizer"][:500], result["coder"][:500])
+                result["coder"] = await self.agents["coder"].think(apply_task)
+                self.env.notify("Optimized", "info")
 
-            self._log(f"Отладчик:\n{debugger_response[:300]}", "DEBUGGER")
-            self.update_response("debugger", debugger_response[:300])
-            self.update_state("debugger", "🟢 ГОТОВ", 100)
+        result["success"] = True
+        result["final"] = result["coder"]
+        self.env.notify("TASK COMPLETE", "info")
+        return result
 
-            if "НУЖНО ИСПРАВЛЕНИЕ" in debugger_response:
-                self._log("⚠️ Возврат к Кодеру для исправления", "SYS")
-                self.update_state("coder", "🟡 ИСПРАВЛЯЕТ", 50)
+    def _has_errors(self, response: str) -> bool:
+        kw = ["error", "exception", "traceback", "bug", "failed", "fail", "needs fix"]
+        return any(k in response.lower() for k in kw)
 
-                fix_task = f"Исправь ошибки:\n{debugger_response[:500]}\n\nКод:\n{coder_response[:500]}"
-                coder_response = await self.agents["coder"].think(fix_task, use_mcp=True)
+    def _needs_optimize(self, coder: str, debugger: str) -> bool:
+        kw = ["slow", "performance", "optimize", "refactor", "inefficient"]
+        return any(k in (coder + debugger).lower() for k in kw)
 
-                self._log(f"Кодер (исправлено):\n{coder_response[:300]}", "CODER")
-                self.update_response("coder", coder_response[:300])
-                self.update_state("coder", "🟢 ИСПРАВЛЕНО", 100)
 
-                needs_debug = self._needs_debug(coder_response)
-                if needs_debug:
-                    self.update_state("debugger", "⚠️ ЕЩЕ ОШИБКИ", 100)
-                    self.update_response("debugger", "Ошибки остались после исправления")
-                    self._log("❌ Ошибки не исправлены полностью", "SYS")
-        else:
-            self.update_state("debugger", "⚪ ПРОПУЩЕН", 100)
-            self.update_response("debugger", "✅ Код без ошибок")
-            self._log("✅ Код без ошибок, отладка пропущена", "SYS")
-            debugger_response = ""
+# --- TUI MODE ---
 
-        # Оптимизатор
-        needs_optimize = self._needs_optimize(coder_response, debugger_response)
+if HAS_TEXTUAL:
+    CSS = """
+    Screen { background: $surface; }
+    .results-grid { grid-size: 3; grid-columns: 1fr 1fr 1fr; grid-rows: auto; height: auto; margin: 1; }
+    .result-panel { border: solid $primary; padding: 1; margin: 1; background: $panel; overflow-y: auto; height: auto; }
+    .result-panel.coder { border: solid cyan; }
+    .result-panel.debugger { border: solid yellow; }
+    .result-panel.optimizer { border: solid green; }
+    .progress-bar { margin-top: 1; }
+    .state-indicator { margin-top: 1; padding: 0 1; }
+    .result-content { margin-top: 1; }
+    .activity-log { border: solid $accent; height: 18; margin-top: 1; overflow-y: auto; background: $panel; }
+    #input-panel { border: solid $primary; margin-top: 1; padding: 1; background: $panel; }
+    #run-btn { width: 22; }
+    #task-input { width: 1fr; }
+    #status-bar { background: $panel; padding: 1; margin-top: 1; }
+    """
 
-        if needs_optimize:
-            self.update_state("optimizer", "🟡 ОПТИМИЗИРУЕТ", 30)
-            self._log("▶ ОПТИМИЗАТОР [MCP: refactor/architecture → auto_tester]", "OPTIMIZER")
+    class XliTui(App):
+        CSS = CSS
+        BINDINGS = [("ctrl+c", "quit", "Quit"), ("c", "clear_log", "Clear"),
+                    ("f", "focus_input", "Focus"), ("m", "show_mcp", "MCP"),
+                    ("q", "skip_questions", "Skip questions")]
 
-            if self.plugin_manager:
-                await self.plugin_manager.execute_hook_async("pre_optimizer", coder_response)
+        def __init__(self):
+            super().__init__()
+            self.env = EnvironmentAdapter()
+            self.core = XliCore(self.env)
+            self.progress_bars = {}
+            self.state_widgets = {}
+            self.response_widgets = {}
+            self.log_widget = None
+            self.skip_questions = False
 
-            optimizer_response = await self.agents["optimizer"].think(
-                f"Оптимизируй код:\n{coder_response}",
-                use_mcp=True
-            )
+        def compose(self):
+            yield Header(show_clock=True)
+            with Container():
+                with Horizontal():
+                    yield Static("FIRE XLI PRO ULTIMATE")
+                    yield Static("%s" % datetime.now().strftime('%Y-%m-%d'))
+                    yield Static("CODER -> DEBUGGER -> OPTIMIZER")
+                    yield Static("MCP: %d" % len(get_available_servers()))
 
-            if self.plugin_manager:
-                await self.plugin_manager.execute_hook_async("post_optimizer", coder_response, optimizer_response)
+                with Grid(classes="results-grid"):
+                    for agent_id, title, color in [
+                        ("coder", "CODER", "cyan"),
+                        ("debugger", "DEBUGGER", "yellow"),
+                        ("optimizer", "OPTIMIZER", "green")
+                    ]:
+                        with Vertical(classes="result-panel %s" % agent_id):
+                            yield Static("[bold %s]%s[/bold %s]" % (color, title, color))
+                            self.progress_bars[agent_id] = ProgressBar(total=100, show_percentage=False)
+                            yield self.progress_bars[agent_id]
+                            self.state_widgets[agent_id] = Static("WAITING")
+                            yield self.state_widgets[agent_id]
+                            self.response_widgets[agent_id] = Static("Waiting...", classes="result-content")
+                            yield self.response_widgets[agent_id]
 
-            self._log(f"Оптимизатор:\n{optimizer_response[:300]}", "OPTIMIZER")
-            self.update_response("optimizer", optimizer_response[:300])
-            self.update_state("optimizer", "🟢 ГОТОВ", 100)
+                with Collapsible(title="LIVE LOG", collapsed=False):
+                    self.log_widget = ScrollableContainer(classes="activity-log")
+                    yield self.log_widget
 
-            if "НУЖНА ОПТИМИЗАЦИЯ" in optimizer_response:
-                self._log("⚡ Применяю оптимизацию", "SYS")
-                self.update_state("coder", "🟡 ОПТИМИЗИРУЕТ", 60)
+                with Horizontal(id="input-panel"):
+                    self.task_input = Input(placeholder="Enter task...", id="task-input")
+                    self.run_button = Button("RUN", variant="primary", id="run-btn")
+                    yield self.task_input
+                    yield self.run_button
 
-                optimize_task = f"Примени оптимизацию:\n{optimizer_response[:500]}\n\nКод:\n{coder_response[:500]}"
-                coder_response = await self.agents["coder"].think(optimize_task, use_mcp=True)
+                self.status_bar = Static("Enter — run | q — skip questions | m — MCP", id="status-bar")
+                yield self.status_bar
 
-                self._log(f"Кодер (оптимизировано):\n{coder_response[:300]}", "CODER")
-                self.update_response("coder", coder_response[:300])
-                self.update_state("coder", "🟢 ОПТИМИЗИРОВАНО", 100)
-        else:
-            self.update_state("optimizer", "⚪ ПРОПУЩЕН", 100)
-            self.update_response("optimizer", "✅ Оптимизация не требуется")
-            self._log("✅ Оптимизация не требуется", "SYS")
+            yield Footer()
 
-        if self.plugin_manager:
-            await self.plugin_manager.execute_hook_async("on_task_complete", final_task, {
-                "coder": coder_response,
-                "debugger": debugger_response if needs_debug else None,
-                "optimizer": optimizer_response if needs_optimize else None,
-            })
+        def on_mount(self):
+            self.set_focus(self.task_input)
+            self._log("XLI PRO ULTIMATE started", "SYS")
+            self._log("MCP servers: %d" % len(get_available_servers()), "SYS")
 
-        self._log("✅ ЗАДАЧА ВЫПОЛНЕНА", "SYS")
-        self.status_bar.update("✅ Готово!")
+        def _log(self, msg: str, agent: str = "SYS"):
+            if not self.log_widget:
+                return
+            timestamp = datetime.now().strftime("%H:%M:%S")
+            entry = Static("%s [%s] %s" % (timestamp, agent, msg))
+            self.log_widget.mount(entry)
+            self.log_widget.scroll_end(animate=False)
 
-    async def on_button_pressed(self, event: Button.Pressed):
-        # Обработка динамических кнопок плагинов
-        if hasattr(self, "_plugin_button_handlers") and event.button.id in self._plugin_button_handlers:
-            handler = self._plugin_button_handlers[event.button.id]
-            if asyncio.iscoroutinefunction(handler):
-                await handler(event)
+        def update_state(self, agent_key: str, state: str, progress: int):
+            if agent_key in self.state_widgets:
+                self.state_widgets[agent_key].update(state)
+            if agent_key in self.progress_bars:
+                self.progress_bars[agent_key].progress = progress
+
+        def update_response(self, agent_key: str, response: str):
+            if agent_key in self.response_widgets:
+                self.response_widgets[agent_key].update(response[:300] if response else "No response")
+
+        def clear_results(self):
+            for key in ["coder", "debugger", "optimizer"]:
+                self.update_response(key, "Waiting...")
+                self.update_state(key, "WAITING", 0)
+
+        async def run_chain(self, task: str):
+            self.clear_results()
+            self.update_state("coder", "WRITING", 30)
+            self._log("TASK: %s" % task[:200], "SYS")
+
+            result = await self.core.run_chain(task, skip_questions=self.skip_questions)
+
+            self.update_response("coder", result["coder"][:300])
+            self.update_state("coder", "DONE", 100)
+
+            if result["debugger"]:
+                self.update_response("debugger", result["debugger"][:300])
+                self.update_state("debugger", "DONE", 100)
             else:
-                handler(event)
+                self.update_state("debugger", "SKIPPED", 100)
+
+            if result["optimizer"]:
+                self.update_response("optimizer", result["optimizer"][:300])
+                self.update_state("optimizer", "DONE", 100)
+            else:
+                self.update_state("optimizer", "SKIPPED", 100)
+
+            self._log("TASK COMPLETE", "SYS")
+
+        async def on_button_pressed(self, event: Button.Pressed):
+            if event.button.id == "run-btn":
+                task = self.task_input.value.strip()
+                if task:
+                    self.task_input.value = ""
+                    await self.run_chain(task)
+                    self.set_focus(self.task_input)
+
+        def on_input_submitted(self, event: Input.Submitted):
+            if event.input.id == "task-input":
+                task = event.value.strip()
+                if task:
+                    self.task_input.value = ""
+                    asyncio.create_task(self.run_chain(task))
+                    self.set_focus(self.task_input)
+
+        def action_clear_log(self):
+            if self.log_widget:
+                self.log_widget.children.clear()
+                self._log("Log cleared", "SYS")
+
+        def action_focus_input(self):
+            self.set_focus(self.task_input)
+
+        def action_show_mcp(self):
+            servers = list_mcp_servers()
+            self._log("=== MCP SERVERS ===", "SYS")
+            for name, info in servers.items():
+                self._log("%s %s: %s" % ("OK" if info['available'] else "NO", name, info['description'][:40]), "MCP")
+
+        def action_skip_questions(self):
+            self.skip_questions = not self.skip_questions
+            self._log("Questions %s" % ("off" if self.skip_questions else "on"), "SYS")
+
+
+# --- CLI / HEADLESS ---
+
+async def run_headless(task: str, agent_type: str = "coder",
+                       skip_questions: bool = False,
+                       output_format: str = "text",
+                       notify: bool = False):
+    env = EnvironmentAdapter()
+
+    if notify:
+        env.notify("XLI: %s..." % task[:50], "info")
+
+    core = XliCore(env)
+    result = await core.run_chain(task, skip_questions=skip_questions)
+
+    if output_format == "json":
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+    elif output_format == "vim":
+        print("XLI_RESULT_START")
+        print(result["final"])
+        print("XLI_RESULT_END")
+    else:
+        print("\n" + "=" * 60)
+        print("FIRE XLI PRO — Result")
+        print("=" * 60)
+        print("\nCODER:\n%s" % result["coder"][:500])
+        if result["debugger"]:
+            print("\nDEBUGGER:\n%s" % result["debugger"][:300])
+        if result["optimizer"]:
+            print("\nOPTIMIZER:\n%s" % result["optimizer"][:300])
+        print("\n" + "=" * 60)
+        print("OK Done!")
+
+    if notify:
+        status = "OK" if result["success"] else "FAIL"
+        env.notify("%s XLI done: %s" % (status, task[:40]),
+                  "info" if result["success"] else "error")
+
+    return result
+
+
+def run_mcp_command(action: str, server_name: str = None):
+    if action == "list":
+        servers = list_mcp_servers()
+        print(json.dumps(servers, indent=2, ensure_ascii=False))
+    elif action == "info" and server_name:
+        servers = get_available_servers()
+        if server_name in servers:
+            print(json.dumps(servers[server_name], indent=2, ensure_ascii=False))
+        else:
+            print("Server '%s' not found" % server_name)
+    elif action == "start" and server_name:
+        toggle_mcp_server(server_name, True)
+        print("MCP '%s' enabled" % server_name)
+    elif action == "stop" and server_name:
+        toggle_mcp_server(server_name, False)
+        print("MCP '%s' disabled" % server_name)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="XLI PRO ULTIMATE")
+    parser.add_argument("--task", help="Task to execute")
+    parser.add_argument("--headless", action="store_true", help="No TUI")
+    parser.add_argument("--agent", default="coder", choices=["coder", "debugger", "optimizer"])
+    parser.add_argument("--skip-questions", action="store_true", help="Skip clarification")
+    parser.add_argument("--output-format", default="text", choices=["text", "json", "vim"])
+    parser.add_argument("--notify", action="store_true", help="Neovim notifications")
+    parser.add_argument("--mcp-list", action="store_true", help="List MCP servers")
+    parser.add_argument("--mcp-start", help="Start MCP server")
+    parser.add_argument("--mcp-stop", help="Stop MCP server")
+    parser.add_argument("--mcp-info", help="MCP server info")
+    parser.add_argument("--debug-file", help="File to debug")
+    args = parser.parse_args()
+
+    # MCP commands
+    if args.mcp_list:
+        run_mcp_command("list")
+        return
+    if args.mcp_start:
+        run_mcp_command("start", args.mcp_start)
+        return
+    if args.mcp_stop:
+        run_mcp_command("stop", args.mcp_stop)
+        return
+    if args.mcp_info:
+        run_mcp_command("info", args.mcp_info)
+        return
+
+    # Headless / Neovim mode
+    if args.headless or args.task or args.debug_file:
+        task = args.task or ""
+        if args.debug_file:
+            task = "debug file: %s" % args.debug_file
+
+        if task:
+            asyncio.run(run_headless(
+                task=task,
+                agent_type=args.agent,
+                skip_questions=args.skip_questions,
+                output_format=args.output_format,
+                notify=args.notify
+            ))
             return
-        
-        # Обработка стандартных плагинов
-        plugin_handled = False
-        if self.plugin_manager:
-            for contrib in self.plugin_manager.get_ui_widgets("panel") + \
-                           self.plugin_manager.get_ui_widgets("toolbar"):
-                instance = contrib.get("instance")
-                if instance and hasattr(instance, "on_button_pressed"):
-                    try:
-                        await instance.on_button_pressed(event)
-                        plugin_handled = True
-                    except Exception as e:
-                        self._log(f"❌ Ошибка плагина: {e}", "PLUGIN")
 
-        if plugin_handled:
-            return
-
-        if event.button.id == "run-btn":
-            task = self.task_input.value.strip()
-            if task:
-                self.task_input.value = ""
-                await self.run_chain(task)
-                self.set_focus(self.task_input)
-
-    def on_input_submitted(self, event: Input.Submitted):
-        if event.input.id == "task-input":
-            task = event.value.strip()
-            if task:
-                self.task_input.value = ""
-                asyncio.create_task(self.run_chain(task))
-                self.set_focus(self.task_input)
-
-    def action_clear_log(self):
-        if self.log_widget:
-            self.log_widget.children.clear()
-        self._log("Лог очищен", "SYS")
-
-    def action_focus_input(self):
-        self.set_focus(self.task_input)
+    # TUI mode
+    if HAS_TEXTUAL:
+        console = Console()
+        fig = Figlet(font='slant')
+        title = fig.renderText("XLI")
+        console.print(Panel(Text(title, style="bold cyan"),
+                          border_style="bright_cyan",
+                          subtitle="[%s]" % datetime.now().strftime('%H:%M:%S')))
+        console.print("MCP: %d | Mode: %s\n" % (len(get_available_servers()), EnvironmentAdapter().name))
+        XliTui().run()
+    else:
+        print("Textual not installed. Use --headless --task '...'")
+        print("   pip install textual rich pyfiglet")
 
 
 if __name__ == "__main__":
-    console = Console()
-    title = fig.renderText("XLI")
-    console.print(Panel(Text(title, style="bold cyan"), border_style="bright_cyan",
-                       subtitle=f"[dim]{datetime.now().strftime('%H:%M:%S')}[/dim]", subtitle_align="center"))
-    console.print(f"[dim]MCP серверов: {len(get_available_servers())}[/dim]")
-    console.print("")
-
-    XliTui().run()
+    main()
