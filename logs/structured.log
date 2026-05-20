@@ -1,0 +1,165 @@
+{"timestamp": "12:06:24.333", "level": "INFO", "component": "main", "message": "XLI started", "details": {"args": "Namespace(task=None, headless=False, agent='coder', skip_questions=False, output_format='text', notify=False, mcp_list=False, mcp_start=None, mcp_stop=None, mcp_info=None, debug_file=None)"}}
+{"timestamp": "12:06:26.388", "level": "DEBUG", "component": "env", "message": "Detected terminal mode"}
+{"timestamp": "12:06:26.389", "level": "INFO", "component": "env", "message": "EnvironmentAdapter initializing", "details": {"mode": "terminal", "cwd": "/data/data/com.termux/files/home/.xli", "termux": true}}
+{"timestamp": "12:06:26.390", "level": "INFO", "component": "env", "message": "EnvironmentAdapter ready", "details": {"mode": "terminal", "nvim_connected": false}}
+{"timestamp": "12:06:26.489", "level": "DEBUG", "component": "env", "message": "Detected terminal mode"}
+{"timestamp": "12:06:26.491", "level": "INFO", "component": "env", "message": "EnvironmentAdapter initializing", "details": {"mode": "terminal", "cwd": "/data/data/com.termux/files/home/.xli", "termux": true}}
+{"timestamp": "12:06:26.492", "level": "INFO", "component": "env", "message": "EnvironmentAdapter ready", "details": {"mode": "terminal", "nvim_connected": false}}
+{"timestamp": "12:06:26.493", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "CODER", "id": "ag_019dde1f66bf766ca618b66745cd8cac"}}
+{"timestamp": "12:06:26.495", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "DEBUGGER", "id": "ag_019dde20b1c472d09b719c805c03cc23"}}
+{"timestamp": "12:06:26.496", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "OPTIMIZER", "id": "ag_019dde2101f776dfb1c74e44f190fa44"}}
+{"timestamp": "12:06:26.497", "level": "INFO", "component": "core", "message": "XliCore initialized"}
+{"timestamp": "12:06:27.010", "level": "DEBUG", "component": "tui", "message": "XLI PRO v3 started", "details": {"agent": "SYS"}}
+{"timestamp": "12:06:27.016", "level": "DEBUG", "component": "tui", "message": "Mode: terminal | MCP: 10", "details": {"agent": "SYS"}}
+{"timestamp": "12:06:27.017", "level": "INFO", "component": "tui", "message": "TUI mounted"}
+{"timestamp": "12:09:47.761", "level": "INFO", "component": "main", "message": "XLI started", "details": {"args": "Namespace(task='создай файл лёгкий в папке TESTING и папку', headless=True, agent='coder', skip_questions=False, output_format='text', notify=True, mcp_list=False, mcp_start=None, mcp_stop=None, mcp_info=None, debug_file=None)"}}
+{"timestamp": "12:09:47.772", "level": "INFO", "component": "headless", "message": "Starting", "details": {"task": "создай файл лёгкий в папке TESTING и папку", "agent": "coder", "format": "text"}}
+{"timestamp": "12:09:47.773", "level": "DEBUG", "component": "env", "message": "Detected terminal mode"}
+{"timestamp": "12:09:47.775", "level": "INFO", "component": "env", "message": "EnvironmentAdapter initializing", "details": {"mode": "terminal", "cwd": "/data/data/com.termux/files/home/.config/nvim", "termux": true}}
+{"timestamp": "12:09:47.776", "level": "INFO", "component": "env", "message": "EnvironmentAdapter ready", "details": {"mode": "terminal", "nvim_connected": false}}
+{"timestamp": "12:09:47.777", "level": "INFO", "component": "notify", "message": "Notify [info]: XLI: создай файл лёгкий в папке TESTING и папку..."}
+{"timestamp": "12:09:47.778", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "CODER", "id": "ag_019dde1f66bf766ca618b66745cd8cac"}}
+{"timestamp": "12:09:47.779", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "DEBUGGER", "id": "ag_019dde20b1c472d09b719c805c03cc23"}}
+{"timestamp": "12:09:47.781", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "OPTIMIZER", "id": "ag_019dde2101f776dfb1c74e44f190fa44"}}
+{"timestamp": "12:09:47.782", "level": "INFO", "component": "core", "message": "XliCore initialized"}
+{"timestamp": "12:09:47.783", "level": "INFO", "component": "core", "message": "Starting chain", "details": {"task": "создай файл лёгкий в папке TESTING и папку", "skip_questions": false}}
+{"timestamp": "12:09:47.784", "level": "INFO", "component": "notify", "message": "Notify [info]: Clarifying task..."}
+{"timestamp": "12:09:47.786", "level": "DEBUG", "component": "questions", "message": "Generating questions", "details": {"task": "создай файл лёгкий в папке TESTING и папку"}}
+{"timestamp": "12:09:52.184", "level": "INFO", "component": "questions", "message": "Generated 4 questions"}
+{"timestamp": "12:09:52.187", "level": "INFO", "component": "questionnaire", "message": "Starting questionnaire", "details": {"questions": 4, "mode": "terminal"}}
+{"timestamp": "12:11:40.822", "level": "INFO", "component": "main", "message": "XLI started", "details": {"args": "Namespace(task=None, headless=False, agent='coder', skip_questions=False, output_format='text', notify=False, mcp_list=False, mcp_start=None, mcp_stop=None, mcp_info=None, debug_file=None)"}}
+{"timestamp": "12:11:43.224", "level": "DEBUG", "component": "env", "message": "Detected terminal mode"}
+{"timestamp": "12:11:43.228", "level": "INFO", "component": "env", "message": "EnvironmentAdapter initializing", "details": {"mode": "terminal", "cwd": "/data/data/com.termux/files/home/.config/nvim", "termux": true}}
+{"timestamp": "12:11:43.230", "level": "INFO", "component": "env", "message": "EnvironmentAdapter ready", "details": {"mode": "terminal", "nvim_connected": false}}
+{"timestamp": "12:11:43.341", "level": "DEBUG", "component": "env", "message": "Detected terminal mode"}
+{"timestamp": "12:11:43.342", "level": "INFO", "component": "env", "message": "EnvironmentAdapter initializing", "details": {"mode": "terminal", "cwd": "/data/data/com.termux/files/home/.config/nvim", "termux": true}}
+{"timestamp": "12:11:43.344", "level": "INFO", "component": "env", "message": "EnvironmentAdapter ready", "details": {"mode": "terminal", "nvim_connected": false}}
+{"timestamp": "12:11:43.346", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "CODER", "id": "ag_019dde1f66bf766ca618b66745cd8cac"}}
+{"timestamp": "12:11:43.347", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "DEBUGGER", "id": "ag_019dde20b1c472d09b719c805c03cc23"}}
+{"timestamp": "12:11:43.349", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "OPTIMIZER", "id": "ag_019dde2101f776dfb1c74e44f190fa44"}}
+{"timestamp": "12:11:43.350", "level": "INFO", "component": "core", "message": "XliCore initialized"}
+{"timestamp": "12:11:43.990", "level": "DEBUG", "component": "tui", "message": "XLI PRO v3 started", "details": {"agent": "SYS"}}
+{"timestamp": "12:11:43.995", "level": "DEBUG", "component": "tui", "message": "Mode: terminal | MCP: 10", "details": {"agent": "SYS"}}
+{"timestamp": "12:11:43.997", "level": "INFO", "component": "tui", "message": "TUI mounted"}
+{"timestamp": "12:12:24.860", "level": "INFO", "component": "main", "message": "XLI started", "details": {"args": "Namespace(task=None, headless=False, agent='coder', skip_questions=False, output_format='text', notify=False, mcp_list=False, mcp_start=None, mcp_stop=None, mcp_info=None, debug_file=None)"}}
+{"timestamp": "12:12:26.431", "level": "DEBUG", "component": "env", "message": "Detected terminal mode"}
+{"timestamp": "12:12:26.432", "level": "INFO", "component": "env", "message": "EnvironmentAdapter initializing", "details": {"mode": "terminal", "cwd": "/data/data/com.termux/files/home/.config/nvim", "termux": true}}
+{"timestamp": "12:12:26.434", "level": "INFO", "component": "env", "message": "EnvironmentAdapter ready", "details": {"mode": "terminal", "nvim_connected": false}}
+{"timestamp": "12:12:26.506", "level": "DEBUG", "component": "env", "message": "Detected terminal mode"}
+{"timestamp": "12:12:26.508", "level": "INFO", "component": "env", "message": "EnvironmentAdapter initializing", "details": {"mode": "terminal", "cwd": "/data/data/com.termux/files/home/.config/nvim", "termux": true}}
+{"timestamp": "12:12:26.510", "level": "INFO", "component": "env", "message": "EnvironmentAdapter ready", "details": {"mode": "terminal", "nvim_connected": false}}
+{"timestamp": "12:12:26.511", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "CODER", "id": "ag_019dde1f66bf766ca618b66745cd8cac"}}
+{"timestamp": "12:12:26.513", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "DEBUGGER", "id": "ag_019dde20b1c472d09b719c805c03cc23"}}
+{"timestamp": "12:12:26.514", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "OPTIMIZER", "id": "ag_019dde2101f776dfb1c74e44f190fa44"}}
+{"timestamp": "12:12:26.516", "level": "INFO", "component": "core", "message": "XliCore initialized"}
+{"timestamp": "12:12:27.250", "level": "DEBUG", "component": "tui", "message": "XLI PRO v3 started", "details": {"agent": "SYS"}}
+{"timestamp": "12:12:27.256", "level": "DEBUG", "component": "tui", "message": "Mode: terminal | MCP: 10", "details": {"agent": "SYS"}}
+{"timestamp": "12:12:27.257", "level": "INFO", "component": "tui", "message": "TUI mounted"}
+{"timestamp": "12:12:34.339", "level": "DEBUG", "component": "tui", "message": "TASK: привет", "details": {"agent": "SYS"}}
+{"timestamp": "12:12:34.341", "level": "INFO", "component": "tui", "message": "Running chain", "details": {"task": "привет"}}
+{"timestamp": "12:12:34.342", "level": "INFO", "component": "core", "message": "Starting chain", "details": {"task": "привет", "skip_questions": false}}
+{"timestamp": "12:12:34.344", "level": "INFO", "component": "notify", "message": "Notify [info]: Clarifying task..."}
+{"timestamp": "12:12:34.346", "level": "DEBUG", "component": "questions", "message": "Generating questions", "details": {"task": "привет"}}
+{"timestamp": "12:12:38.187", "level": "INFO", "component": "questions", "message": "Generated 3 questions"}
+{"timestamp": "12:12:38.188", "level": "INFO", "component": "questionnaire", "message": "Starting questionnaire", "details": {"questions": 3, "mode": "terminal"}}
+{"timestamp": "12:13:27.345", "level": "INFO", "component": "main", "message": "XLI started", "details": {"args": "Namespace(task='создай скрипт', headless=True, agent='coder', skip_questions=False, output_format='text', notify=True, mcp_list=False, mcp_start=None, mcp_stop=None, mcp_info=None, debug_file=None)"}}
+{"timestamp": "12:13:27.348", "level": "INFO", "component": "headless", "message": "Starting", "details": {"task": "создай скрипт", "agent": "coder", "format": "text"}}
+{"timestamp": "12:13:27.350", "level": "DEBUG", "component": "env", "message": "Detected terminal mode"}
+{"timestamp": "12:13:27.351", "level": "INFO", "component": "env", "message": "EnvironmentAdapter initializing", "details": {"mode": "terminal", "cwd": "/data/data/com.termux/files/home/.config/nvim", "termux": true}}
+{"timestamp": "12:13:27.352", "level": "INFO", "component": "env", "message": "EnvironmentAdapter ready", "details": {"mode": "terminal", "nvim_connected": false}}
+{"timestamp": "12:13:27.354", "level": "INFO", "component": "notify", "message": "Notify [info]: XLI: создай скрипт..."}
+{"timestamp": "12:13:27.355", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "CODER", "id": "ag_019dde1f66bf766ca618b66745cd8cac"}}
+{"timestamp": "12:13:27.357", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "DEBUGGER", "id": "ag_019dde20b1c472d09b719c805c03cc23"}}
+{"timestamp": "12:13:27.358", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "OPTIMIZER", "id": "ag_019dde2101f776dfb1c74e44f190fa44"}}
+{"timestamp": "12:13:27.359", "level": "INFO", "component": "core", "message": "XliCore initialized"}
+{"timestamp": "12:13:27.361", "level": "INFO", "component": "core", "message": "Starting chain", "details": {"task": "создай скрипт", "skip_questions": false}}
+{"timestamp": "12:13:27.362", "level": "INFO", "component": "notify", "message": "Notify [info]: Clarifying task..."}
+{"timestamp": "12:13:27.364", "level": "DEBUG", "component": "questions", "message": "Generating questions", "details": {"task": "создай скрипт"}}
+{"timestamp": "12:13:33.362", "level": "INFO", "component": "questions", "message": "Generated 4 questions"}
+{"timestamp": "12:13:33.364", "level": "INFO", "component": "questionnaire", "message": "Starting questionnaire", "details": {"questions": 4, "mode": "terminal"}}
+{"timestamp": "12:17:03.696", "level": "INFO", "component": "main", "message": "XLI started", "details": {"args": "Namespace(task='test', headless=True, agent='coder', skip_questions=True, output_format='text', notify=False, mcp_list=False, mcp_start=None, mcp_stop=None, mcp_info=None, debug_file=None)"}}
+{"timestamp": "12:17:03.702", "level": "INFO", "component": "headless", "message": "Starting", "details": {"task": "test", "agent": "coder", "format": "text"}}
+{"timestamp": "12:17:03.705", "level": "DEBUG", "component": "env", "message": "Detected terminal mode"}
+{"timestamp": "12:17:03.707", "level": "INFO", "component": "env", "message": "EnvironmentAdapter initializing", "details": {"mode": "terminal", "cwd": "/data/data/com.termux/files/home/.xli/logs", "termux": true}}
+{"timestamp": "12:17:03.709", "level": "INFO", "component": "env", "message": "EnvironmentAdapter ready", "details": {"mode": "terminal", "nvim_connected": false}}
+{"timestamp": "12:17:03.711", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "CODER", "id": "ag_019dde1f66bf766ca618b66745cd8cac"}}
+{"timestamp": "12:17:03.713", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "DEBUGGER", "id": "ag_019dde20b1c472d09b719c805c03cc23"}}
+{"timestamp": "12:17:03.714", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "OPTIMIZER", "id": "ag_019dde2101f776dfb1c74e44f190fa44"}}
+{"timestamp": "12:17:03.716", "level": "INFO", "component": "core", "message": "XliCore initialized"}
+{"timestamp": "12:17:03.718", "level": "INFO", "component": "core", "message": "Starting chain", "details": {"task": "test", "skip_questions": true}}
+{"timestamp": "12:17:03.719", "level": "INFO", "component": "notify", "message": "Notify [info]: CODER writing code..."}
+{"timestamp": "12:17:03.721", "level": "INFO", "component": "agent.CODER", "message": "Thinking", "details": {"task": "test"}}
+{"timestamp": "12:17:06.486", "level": "DEBUG", "component": "agent.CODER", "message": "MCP pre-step", "details": {"ctx_len": 74}}
+{"timestamp": "12:17:07.330", "level": "DEBUG", "component": "agent.CODER", "message": "Skills loaded", "details": {"len": 3848}}
+{"timestamp": "12:17:07.332", "level": "DEBUG", "component": "agent.CODER", "message": "Calling Mistral", "details": {"msgs": 2}}
+{"timestamp": "12:17:17.607", "level": "DEBUG", "component": "agent.CODER", "message": "Response received", "details": {"len": 1856}}
+{"timestamp": "12:17:17.611", "level": "INFO", "component": "agent.CODER.shell", "message": "Executing: ls -la /data/data/com.termux/files/home/.xli/logs"}
+{"timestamp": "12:17:17.612", "level": "INFO", "component": "shell", "message": "Executing: ls -la /data/data/com.termux/files/home/.xli/logs", "details": {"timeout": 30, "cwd": "/data/data/com.termux/files/home/.xli/logs"}}
+{"timestamp": "12:17:17.676", "level": "DEBUG", "component": "shell", "message": "Command finished", "details": {"exit_code": 0, "stdout_len": 425, "stderr_len": 0}}
+{"timestamp": "12:17:17.678", "level": "INFO", "component": "agent.CODER.shell", "message": "Executing: cd /data/data/com.termux/files/home/.xli/logs && python3 test_environment.py"}
+{"timestamp": "12:17:17.679", "level": "INFO", "component": "shell", "message": "Executing: cd /data/data/com.termux/files/home/.xli/logs && python3 test_environment.py", "details": {"timeout": 30, "cwd": "/data/data/com.termux/files/home/.xli/logs"}}
+{"timestamp": "12:17:17.879", "level": "DEBUG", "component": "shell", "message": "Command finished", "details": {"exit_code": 2, "stdout_len": 0, "stderr_len": 126}}
+{"timestamp": "12:17:17.881", "level": "ERROR", "component": "shell", "message": "Command failed: exit 2", "details": {"cmd": "cd /data/data/com.termux/files/home/.xli/logs && python3 test_environment.py", "stderr": "python3: can't open file '/data/data/com.termux/files/home/.xli/logs/test_environment.py': [Errno 2] No such file or directory"}}
+{"timestamp": "12:17:17.885", "level": "INFO", "component": "agent.CODER.shell", "message": "Executing: python3 /data/data/com.termux/files/home/.xli/logs/knowledge_test.py"}
+{"timestamp": "12:17:17.886", "level": "INFO", "component": "shell", "message": "Executing: python3 /data/data/com.termux/files/home/.xli/logs/knowledge_test.py", "details": {"timeout": 30, "cwd": "/data/data/com.termux/files/home/.xli/logs"}}
+{"timestamp": "12:17:18.100", "level": "DEBUG", "component": "shell", "message": "Command finished", "details": {"exit_code": 2, "stdout_len": 0, "stderr_len": 124}}
+{"timestamp": "12:17:18.101", "level": "ERROR", "component": "shell", "message": "Command failed: exit 2", "details": {"cmd": "python3 /data/data/com.termux/files/home/.xli/logs/knowledge_test.py", "stderr": "python3: can't open file '/data/data/com.termux/files/home/.xli/logs/knowledge_test.py': [Errno 2] No such file or directory"}}
+{"timestamp": "12:17:18.112", "level": "DEBUG", "component": "history", "message": "Appended", "details": {"task": "test\n\nMCP:\n[knowledge_base] ❌ search_code() got an"}}
+{"timestamp": "12:17:18.114", "level": "INFO", "component": "agent.CODER", "message": "Shell output", "details": {"len": 915}}
+{"timestamp": "12:17:18.115", "level": "INFO", "component": "core", "message": "Coder done", "details": {"output_len": 2781}}
+{"timestamp": "12:17:18.117", "level": "INFO", "component": "notify", "message": "Notify [info]: Coder done"}
+{"timestamp": "12:17:18.119", "level": "DEBUG", "component": "core", "message": "Error check: True"}
+{"timestamp": "12:17:18.121", "level": "INFO", "component": "notify", "message": "Notify [warn]: DEBUGGER checking..."}
+{"timestamp": "12:17:18.122", "level": "INFO", "component": "agent.DEBUGGER", "message": "Thinking", "details": {"task": "Check code:\nUnderstood. Let me check the current directory structure and create a simple test file t"}}
+{"timestamp": "12:17:18.412", "level": "DEBUG", "component": "agent.DEBUGGER", "message": "MCP pre-step", "details": {"ctx_len": 75}}
+{"timestamp": "12:17:18.876", "level": "DEBUG", "component": "agent.DEBUGGER", "message": "Skills loaded", "details": {"len": 3844}}
+{"timestamp": "12:17:18.877", "level": "DEBUG", "component": "agent.DEBUGGER", "message": "Calling Mistral", "details": {"msgs": 2}}
+{"timestamp": "12:17:31.184", "level": "DEBUG", "component": "agent.DEBUGGER", "message": "Response received", "details": {"len": 3384}}
+{"timestamp": "12:17:31.187", "level": "INFO", "component": "agent.DEBUGGER.shell", "message": "Executing: touch /data/data/com.termux/files/home/.xli/logs/debug_test.py\nls -la /data/data"}
+{"timestamp": "12:17:31.188", "level": "INFO", "component": "shell", "message": "Executing: touch /data/data/com.termux/files/home/.xli/logs/debug_test.py\nls -la /data/data/com.termux/files/ho", "details": {"timeout": 30, "cwd": "/data/data/com.termux/files/home/.xli/logs"}}
+{"timestamp": "12:17:31.271", "level": "DEBUG", "component": "shell", "message": "Command finished", "details": {"exit_code": 0, "stdout_len": 101, "stderr_len": 0}}
+{"timestamp": "12:17:31.273", "level": "INFO", "component": "agent.DEBUGGER.shell", "message": "Executing: cd /data/data/com.termux/files/home/.xli/logs && python3 debug_test.py"}
+{"timestamp": "12:17:31.274", "level": "INFO", "component": "shell", "message": "Executing: cd /data/data/com.termux/files/home/.xli/logs && python3 debug_test.py", "details": {"timeout": 30, "cwd": "/data/data/com.termux/files/home/.xli/logs"}}
+{"timestamp": "12:17:31.502", "level": "DEBUG", "component": "shell", "message": "Command finished", "details": {"exit_code": 0, "stdout_len": 0, "stderr_len": 0}}
+{"timestamp": "12:17:31.504", "level": "INFO", "component": "agent.DEBUGGER.shell", "message": "Executing: find /data/data/com.termux/files/home -name \"*.py\" -type f -exec grep -l \"analyz"}
+{"timestamp": "12:17:31.507", "level": "INFO", "component": "shell", "message": "Executing: find /data/data/com.termux/files/home -name \"*.py\" -type f -exec grep -l \"analyze_traceback\" {} \\;", "details": {"timeout": 30, "cwd": "/data/data/com.termux/files/home/.xli/logs"}}
+{"timestamp": "12:18:01.545", "level": "ERROR", "component": "shell", "message": "Command timeout after 30s", "details": {"cmd": "find /data/data/com.termux/files/home -name \"*.py\" -type f -exec grep -l \"analyze_traceback\" {} \\;"}}
+{"timestamp": "12:18:01.549", "level": "INFO", "component": "agent.DEBUGGER.shell", "message": "Executing: chmod 755 /data/data/com.termux/files/home/.xli/logs\nls -la /data/data/com.termu"}
+{"timestamp": "12:18:01.550", "level": "INFO", "component": "shell", "message": "Executing: chmod 755 /data/data/com.termux/files/home/.xli/logs\nls -la /data/data/com.termux/files/home/.xli/lo", "details": {"timeout": 30, "cwd": "/data/data/com.termux/files/home/.xli/logs"}}
+{"timestamp": "12:18:01.648", "level": "DEBUG", "component": "shell", "message": "Command finished", "details": {"exit_code": 0, "stdout_len": 489, "stderr_len": 0}}
+{"timestamp": "12:18:01.651", "level": "DEBUG", "component": "history", "message": "Appended", "details": {"task": "Check code:\nUnderstood. Let me check the current d"}}
+{"timestamp": "12:18:01.652", "level": "INFO", "component": "agent.DEBUGGER", "message": "Shell output", "details": {"len": 1050}}
+{"timestamp": "12:18:01.654", "level": "INFO", "component": "core", "message": "Debugger done", "details": {"needs_fix": false}}
+{"timestamp": "12:18:01.659", "level": "DEBUG", "component": "core", "message": "Optimize check: False"}
+{"timestamp": "12:18:01.661", "level": "INFO", "component": "notify", "message": "Notify [info]: TASK COMPLETE"}
+{"timestamp": "12:18:01.662", "level": "INFO", "component": "core", "message": "Chain complete", "details": {"success": true, "final_len": 2781}}
+{"timestamp": "12:18:01.664", "level": "INFO", "component": "headless", "message": "Complete", "details": {"success": true}}
+{"timestamp": "18:34:15.670", "level": "INFO", "component": "main", "message": "XLI started", "details": {"args": "Namespace(task=None, headless=False, agent='coder', skip_questions=False, output_format='text', notify=False, mcp_list=False, mcp_start=None, mcp_stop=None, mcp_info=None, debug_file=None)"}}
+{"timestamp": "18:34:17.993", "level": "DEBUG", "component": "env", "message": "Detected terminal mode"}
+{"timestamp": "18:34:17.995", "level": "INFO", "component": "env", "message": "EnvironmentAdapter initializing", "details": {"mode": "terminal", "cwd": "/data/data/com.termux/files/home", "termux": true}}
+{"timestamp": "18:34:17.996", "level": "INFO", "component": "env", "message": "EnvironmentAdapter ready", "details": {"mode": "terminal", "nvim_connected": false}}
+{"timestamp": "18:34:18.092", "level": "DEBUG", "component": "env", "message": "Detected terminal mode"}
+{"timestamp": "18:34:18.094", "level": "INFO", "component": "env", "message": "EnvironmentAdapter initializing", "details": {"mode": "terminal", "cwd": "/data/data/com.termux/files/home", "termux": true}}
+{"timestamp": "18:34:18.095", "level": "INFO", "component": "env", "message": "EnvironmentAdapter ready", "details": {"mode": "terminal", "nvim_connected": false}}
+{"timestamp": "18:34:18.096", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "CODER", "id": "ag_019dde1f66bf766ca618b66745cd8cac"}}
+{"timestamp": "18:34:18.098", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "DEBUGGER", "id": "ag_019dde20b1c472d09b719c805c03cc23"}}
+{"timestamp": "18:34:18.100", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "OPTIMIZER", "id": "ag_019dde2101f776dfb1c74e44f190fa44"}}
+{"timestamp": "18:34:18.101", "level": "INFO", "component": "core", "message": "XliCore initialized"}
+{"timestamp": "18:34:18.723", "level": "DEBUG", "component": "tui", "message": "XLI PRO v3 started", "details": {"agent": "SYS"}}
+{"timestamp": "18:34:18.730", "level": "DEBUG", "component": "tui", "message": "Mode: terminal | MCP: 10", "details": {"agent": "SYS"}}
+{"timestamp": "18:34:18.731", "level": "INFO", "component": "tui", "message": "TUI mounted"}
+{"timestamp": "18:34:54.812", "level": "INFO", "component": "main", "message": "XLI started", "details": {"args": "Namespace(task='Создай скрипт', headless=True, agent='coder', skip_questions=False, output_format='text', notify=True, mcp_list=False, mcp_start=None, mcp_stop=None, mcp_info=None, debug_file=None)"}}
+{"timestamp": "18:34:54.818", "level": "INFO", "component": "headless", "message": "Starting", "details": {"task": "Создай скрипт", "agent": "coder", "format": "text"}}
+{"timestamp": "18:34:54.820", "level": "DEBUG", "component": "env", "message": "Detected terminal mode"}
+{"timestamp": "18:34:54.822", "level": "INFO", "component": "env", "message": "EnvironmentAdapter initializing", "details": {"mode": "terminal", "cwd": "/data/data/com.termux/files/home", "termux": true}}
+{"timestamp": "18:34:54.823", "level": "INFO", "component": "env", "message": "EnvironmentAdapter ready", "details": {"mode": "terminal", "nvim_connected": false}}
+{"timestamp": "18:34:54.825", "level": "INFO", "component": "notify", "message": "Notify [info]: XLI: Создай скрипт..."}
+{"timestamp": "18:34:54.826", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "CODER", "id": "ag_019dde1f66bf766ca618b66745cd8cac"}}
+{"timestamp": "18:34:54.828", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "DEBUGGER", "id": "ag_019dde20b1c472d09b719c805c03cc23"}}
+{"timestamp": "18:34:54.829", "level": "DEBUG", "component": "agent", "message": "Agent initialized", "details": {"name": "OPTIMIZER", "id": "ag_019dde2101f776dfb1c74e44f190fa44"}}
+{"timestamp": "18:34:54.830", "level": "INFO", "component": "core", "message": "XliCore initialized"}
+{"timestamp": "18:34:54.831", "level": "INFO", "component": "core", "message": "Starting chain", "details": {"task": "Создай скрипт", "skip_questions": false}}
+{"timestamp": "18:34:54.832", "level": "INFO", "component": "notify", "message": "Notify [info]: Clarifying task..."}
+{"timestamp": "18:34:54.834", "level": "DEBUG", "component": "questions", "message": "Generating questions", "details": {"task": "Создай скрипт"}}
+{"timestamp": "18:35:05.221", "level": "INFO", "component": "questions", "message": "Generated 4 questions"}
+{"timestamp": "18:35:05.228", "level": "INFO", "component": "questionnaire", "message": "Starting questionnaire", "details": {"questions": 4, "mode": "terminal"}}

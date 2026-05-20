@@ -11,3 +11,176 @@
 [11:16:57] [INFO] [xli:notify:148] Notify [warn]: DEBUGGER checking...
 [11:17:05] [INFO] [xli:run_shell:161] Shell: mkdir -p ~/bin && ln -s /data/data/com.termux/files/home/.xli/show_text.sh ~/bin
 [11:17:05] [INFO] [xli:notify:148] Notify [info]: TASK COMPLETE
+[12:06:24] [INFO] [xli:log_structured:146] [main] XLI started
+[12:06:26] [DEBUG] [xli:log_structured:146] [env] Detected terminal mode
+[12:06:26] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter initializing
+[12:06:26] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter ready
+[12:06:26] [DEBUG] [xli:log_structured:146] [env] Detected terminal mode
+[12:06:26] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter initializing
+[12:06:26] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter ready
+[12:06:26] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:06:26] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:06:26] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:06:26] [INFO] [xli:log_structured:146] [core] XliCore initialized
+[12:06:27] [DEBUG] [xli:log_structured:146] [tui] XLI PRO v3 started
+[12:06:27] [DEBUG] [xli:log_structured:146] [tui] Mode: terminal | MCP: 10
+[12:06:27] [INFO] [xli:log_structured:146] [tui] TUI mounted
+[12:09:47] [INFO] [xli:log_structured:146] [main] XLI started
+[12:09:47] [INFO] [xli:log_structured:146] [headless] Starting
+[12:09:47] [DEBUG] [xli:log_structured:146] [env] Detected terminal mode
+[12:09:47] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter initializing
+[12:09:47] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter ready
+[12:09:47] [INFO] [xli:log_structured:146] [notify] Notify [info]: XLI: создай файл лёгкий в папке TESTING и папку...
+[12:09:47] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:09:47] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:09:47] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:09:47] [INFO] [xli:log_structured:146] [core] XliCore initialized
+[12:09:47] [INFO] [xli:log_structured:146] [core] Starting chain
+[12:09:47] [INFO] [xli:log_structured:146] [notify] Notify [info]: Clarifying task...
+[12:09:47] [DEBUG] [xli:log_structured:146] [questions] Generating questions
+[12:09:52] [INFO] [xli:log_structured:146] [questions] Generated 4 questions
+[12:09:52] [INFO] [xli:log_structured:146] [questionnaire] Starting questionnaire
+[12:11:40] [INFO] [xli:log_structured:146] [main] XLI started
+[12:11:43] [DEBUG] [xli:log_structured:146] [env] Detected terminal mode
+[12:11:43] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter initializing
+[12:11:43] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter ready
+[12:11:43] [DEBUG] [xli:log_structured:146] [env] Detected terminal mode
+[12:11:43] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter initializing
+[12:11:43] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter ready
+[12:11:43] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:11:43] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:11:43] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:11:43] [INFO] [xli:log_structured:146] [core] XliCore initialized
+[12:11:43] [DEBUG] [xli:log_structured:146] [tui] XLI PRO v3 started
+[12:11:43] [DEBUG] [xli:log_structured:146] [tui] Mode: terminal | MCP: 10
+[12:11:43] [INFO] [xli:log_structured:146] [tui] TUI mounted
+[12:12:24] [INFO] [xli:log_structured:146] [main] XLI started
+[12:12:26] [DEBUG] [xli:log_structured:146] [env] Detected terminal mode
+[12:12:26] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter initializing
+[12:12:26] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter ready
+[12:12:26] [DEBUG] [xli:log_structured:146] [env] Detected terminal mode
+[12:12:26] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter initializing
+[12:12:26] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter ready
+[12:12:26] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:12:26] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:12:26] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:12:26] [INFO] [xli:log_structured:146] [core] XliCore initialized
+[12:12:27] [DEBUG] [xli:log_structured:146] [tui] XLI PRO v3 started
+[12:12:27] [DEBUG] [xli:log_structured:146] [tui] Mode: terminal | MCP: 10
+[12:12:27] [INFO] [xli:log_structured:146] [tui] TUI mounted
+[12:12:34] [DEBUG] [xli:log_structured:146] [tui] TASK: привет
+[12:12:34] [INFO] [xli:log_structured:146] [tui] Running chain
+[12:12:34] [INFO] [xli:log_structured:146] [core] Starting chain
+[12:12:34] [INFO] [xli:log_structured:146] [notify] Notify [info]: Clarifying task...
+[12:12:34] [DEBUG] [xli:log_structured:146] [questions] Generating questions
+[12:12:38] [INFO] [xli:log_structured:146] [questions] Generated 3 questions
+[12:12:38] [INFO] [xli:log_structured:146] [questionnaire] Starting questionnaire
+[12:13:27] [INFO] [xli:log_structured:146] [main] XLI started
+[12:13:27] [INFO] [xli:log_structured:146] [headless] Starting
+[12:13:27] [DEBUG] [xli:log_structured:146] [env] Detected terminal mode
+[12:13:27] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter initializing
+[12:13:27] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter ready
+[12:13:27] [INFO] [xli:log_structured:146] [notify] Notify [info]: XLI: создай скрипт...
+[12:13:27] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:13:27] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:13:27] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:13:27] [INFO] [xli:log_structured:146] [core] XliCore initialized
+[12:13:27] [INFO] [xli:log_structured:146] [core] Starting chain
+[12:13:27] [INFO] [xli:log_structured:146] [notify] Notify [info]: Clarifying task...
+[12:13:27] [DEBUG] [xli:log_structured:146] [questions] Generating questions
+[12:13:33] [INFO] [xli:log_structured:146] [questions] Generated 4 questions
+[12:13:33] [INFO] [xli:log_structured:146] [questionnaire] Starting questionnaire
+[12:17:03] [INFO] [xli:log_structured:146] [main] XLI started
+[12:17:03] [INFO] [xli:log_structured:146] [headless] Starting
+[12:17:03] [DEBUG] [xli:log_structured:146] [env] Detected terminal mode
+[12:17:03] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter initializing
+[12:17:03] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter ready
+[12:17:03] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:17:03] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:17:03] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[12:17:03] [INFO] [xli:log_structured:146] [core] XliCore initialized
+[12:17:03] [INFO] [xli:log_structured:146] [core] Starting chain
+[12:17:03] [INFO] [xli:log_structured:146] [notify] Notify [info]: CODER writing code...
+[12:17:03] [INFO] [xli:log_structured:146] [agent.CODER] Thinking
+[12:17:06] [DEBUG] [xli:log_structured:146] [agent.CODER] MCP pre-step
+[12:17:07] [DEBUG] [xli:log_structured:146] [agent.CODER] Skills loaded
+[12:17:07] [DEBUG] [xli:log_structured:146] [agent.CODER] Calling Mistral
+[12:17:17] [DEBUG] [xli:log_structured:146] [agent.CODER] Response received
+[12:17:17] [INFO] [xli:log_structured:146] [agent.CODER.shell] Executing: ls -la /data/data/com.termux/files/home/.xli/logs
+[12:17:17] [INFO] [xli:log_structured:146] [shell] Executing: ls -la /data/data/com.termux/files/home/.xli/logs
+[12:17:17] [DEBUG] [xli:log_structured:146] [shell] Command finished
+[12:17:17] [INFO] [xli:log_structured:146] [agent.CODER.shell] Executing: cd /data/data/com.termux/files/home/.xli/logs && python3 test_environment.py
+[12:17:17] [INFO] [xli:log_structured:146] [shell] Executing: cd /data/data/com.termux/files/home/.xli/logs && python3 test_environment.py
+[12:17:17] [DEBUG] [xli:log_structured:146] [shell] Command finished
+[12:17:17] [ERROR] [xli:log_structured:146] [shell] Command failed: exit 2
+[12:17:17] [ERROR] [xli:log_error:154] [shell] Command failed: exit 2
+[12:17:17] [INFO] [xli:log_structured:146] [agent.CODER.shell] Executing: python3 /data/data/com.termux/files/home/.xli/logs/knowledge_test.py
+[12:17:17] [INFO] [xli:log_structured:146] [shell] Executing: python3 /data/data/com.termux/files/home/.xli/logs/knowledge_test.py
+[12:17:18] [DEBUG] [xli:log_structured:146] [shell] Command finished
+[12:17:18] [ERROR] [xli:log_structured:146] [shell] Command failed: exit 2
+[12:17:18] [ERROR] [xli:log_error:154] [shell] Command failed: exit 2
+[12:17:18] [DEBUG] [xli:log_structured:146] [history] Appended
+[12:17:18] [INFO] [xli:log_structured:146] [agent.CODER] Shell output
+[12:17:18] [INFO] [xli:log_structured:146] [core] Coder done
+[12:17:18] [INFO] [xli:log_structured:146] [notify] Notify [info]: Coder done
+[12:17:18] [DEBUG] [xli:log_structured:146] [core] Error check: True
+[12:17:18] [INFO] [xli:log_structured:146] [notify] Notify [warn]: DEBUGGER checking...
+[12:17:18] [INFO] [xli:log_structured:146] [agent.DEBUGGER] Thinking
+[12:17:18] [DEBUG] [xli:log_structured:146] [agent.DEBUGGER] MCP pre-step
+[12:17:18] [DEBUG] [xli:log_structured:146] [agent.DEBUGGER] Skills loaded
+[12:17:18] [DEBUG] [xli:log_structured:146] [agent.DEBUGGER] Calling Mistral
+[12:17:31] [DEBUG] [xli:log_structured:146] [agent.DEBUGGER] Response received
+[12:17:31] [INFO] [xli:log_structured:146] [agent.DEBUGGER.shell] Executing: touch /data/data/com.termux/files/home/.xli/logs/debug_test.py
+ls -la /data/data
+[12:17:31] [INFO] [xli:log_structured:146] [shell] Executing: touch /data/data/com.termux/files/home/.xli/logs/debug_test.py
+ls -la /data/data/com.termux/files/ho
+[12:17:31] [DEBUG] [xli:log_structured:146] [shell] Command finished
+[12:17:31] [INFO] [xli:log_structured:146] [agent.DEBUGGER.shell] Executing: cd /data/data/com.termux/files/home/.xli/logs && python3 debug_test.py
+[12:17:31] [INFO] [xli:log_structured:146] [shell] Executing: cd /data/data/com.termux/files/home/.xli/logs && python3 debug_test.py
+[12:17:31] [DEBUG] [xli:log_structured:146] [shell] Command finished
+[12:17:31] [INFO] [xli:log_structured:146] [agent.DEBUGGER.shell] Executing: find /data/data/com.termux/files/home -name "*.py" -type f -exec grep -l "analyz
+[12:17:31] [INFO] [xli:log_structured:146] [shell] Executing: find /data/data/com.termux/files/home -name "*.py" -type f -exec grep -l "analyze_traceback" {} \;
+[12:18:01] [ERROR] [xli:log_structured:146] [shell] Command timeout after 30s
+[12:18:01] [ERROR] [xli:log_error:154] [shell] Command timeout after 30s
+[12:18:01] [INFO] [xli:log_structured:146] [agent.DEBUGGER.shell] Executing: chmod 755 /data/data/com.termux/files/home/.xli/logs
+ls -la /data/data/com.termu
+[12:18:01] [INFO] [xli:log_structured:146] [shell] Executing: chmod 755 /data/data/com.termux/files/home/.xli/logs
+ls -la /data/data/com.termux/files/home/.xli/lo
+[12:18:01] [DEBUG] [xli:log_structured:146] [shell] Command finished
+[12:18:01] [DEBUG] [xli:log_structured:146] [history] Appended
+[12:18:01] [INFO] [xli:log_structured:146] [agent.DEBUGGER] Shell output
+[12:18:01] [INFO] [xli:log_structured:146] [core] Debugger done
+[12:18:01] [DEBUG] [xli:log_structured:146] [core] Optimize check: False
+[12:18:01] [INFO] [xli:log_structured:146] [notify] Notify [info]: TASK COMPLETE
+[12:18:01] [INFO] [xli:log_structured:146] [core] Chain complete
+[12:18:01] [INFO] [xli:log_structured:146] [headless] Complete
+[12:24:08] [INFO] [xli:notify:148] Notify [info]: Clarifying task...
+[18:34:15] [INFO] [xli:log_structured:146] [main] XLI started
+[18:34:17] [DEBUG] [xli:log_structured:146] [env] Detected terminal mode
+[18:34:17] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter initializing
+[18:34:17] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter ready
+[18:34:18] [DEBUG] [xli:log_structured:146] [env] Detected terminal mode
+[18:34:18] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter initializing
+[18:34:18] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter ready
+[18:34:18] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[18:34:18] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[18:34:18] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[18:34:18] [INFO] [xli:log_structured:146] [core] XliCore initialized
+[18:34:18] [DEBUG] [xli:log_structured:146] [tui] XLI PRO v3 started
+[18:34:18] [DEBUG] [xli:log_structured:146] [tui] Mode: terminal | MCP: 10
+[18:34:18] [INFO] [xli:log_structured:146] [tui] TUI mounted
+[18:34:54] [INFO] [xli:log_structured:146] [main] XLI started
+[18:34:54] [INFO] [xli:log_structured:146] [headless] Starting
+[18:34:54] [DEBUG] [xli:log_structured:146] [env] Detected terminal mode
+[18:34:54] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter initializing
+[18:34:54] [INFO] [xli:log_structured:146] [env] EnvironmentAdapter ready
+[18:34:54] [INFO] [xli:log_structured:146] [notify] Notify [info]: XLI: Создай скрипт...
+[18:34:54] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[18:34:54] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[18:34:54] [DEBUG] [xli:log_structured:146] [agent] Agent initialized
+[18:34:54] [INFO] [xli:log_structured:146] [core] XliCore initialized
+[18:34:54] [INFO] [xli:log_structured:146] [core] Starting chain
+[18:34:54] [INFO] [xli:log_structured:146] [notify] Notify [info]: Clarifying task...
+[18:34:54] [DEBUG] [xli:log_structured:146] [questions] Generating questions
+[18:35:05] [INFO] [xli:log_structured:146] [questions] Generated 4 questions
+[18:35:05] [INFO] [xli:log_structured:146] [questionnaire] Starting questionnaire

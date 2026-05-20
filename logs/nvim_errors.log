@@ -1,0 +1,219 @@
+[11:47:42] [ WARN] [nvim.notify]   leap.nvim: the repository has been moved to Codeberg.
+
+  In your package manager, change the url to `https://codeberg.org/andyg/leap.nvim`.
+
+  In lazy.nvim:
+    before:
+    {
+      "ggandor/leap.nvim",
+      -- config...
+    }
+    after:
+    {
+      url = "https://codeberg.org/andyg/leap.nvim",
+      -- config...
+    }
+
+[11:47:47] [ INFO] [nvim.init] XLI PRO v3 integration loaded
+[11:47:48] [DEBUG] [nvim.Xli] Task cancelled (empty)
+[11:48:13] [ WARN] [nvim.notify]   leap.nvim: the repository has been moved to Codeberg.
+
+  In your package manager, change the url to `https://codeberg.org/andyg/leap.nvim`.
+
+  In lazy.nvim:
+    before:
+    {
+      "ggandor/leap.nvim",
+      -- config...
+    }
+    after:
+    {
+      url = "https://codeberg.org/andyg/leap.nvim",
+      -- config...
+    }
+
+[11:48:18] [ INFO] [nvim.init] XLI PRO v3 integration loaded
+[11:48:19] [DEBUG] [nvim.Xli] Task cancelled (empty)
+[11:48:41] [ WARN] [nvim.notify]   leap.nvim: the repository has been moved to Codeberg.
+
+  In your package manager, change the url to `https://codeberg.org/andyg/leap.nvim`.
+
+  In lazy.nvim:
+    before:
+    {
+      "ggandor/leap.nvim",
+      -- config...
+    }
+    after:
+    {
+      url = "https://codeberg.org/andyg/leap.nvim",
+      -- config...
+    }
+
+[11:48:45] [ INFO] [nvim.init] XLI PRO v3 integration loaded
+[11:48:46] [DEBUG] [nvim.Xli] Task cancelled (empty)
+[11:49:15] [ WARN] [nvim.notify]   leap.nvim: the repository has been moved to Codeberg.
+
+  In your package manager, change the url to `https://codeberg.org/andyg/leap.nvim`.
+
+  In lazy.nvim:
+    before:
+    {
+      "ggandor/leap.nvim",
+      -- config...
+    }
+    after:
+    {
+      url = "https://codeberg.org/andyg/leap.nvim",
+      -- config...
+    }
+
+[11:49:34] [ INFO] [nvim.init] XLI PRO v3 integration loaded
+[11:49:38] [DEBUG] [nvim.Xli] Task cancelled (empty)
+[11:50:28] [ INFO] [nvim.Xli] Task started | {"task": "посмотри файл"}
+[11:50:28] [DEBUG] [nvim.xli_run] Starting job | {"cmd": "python3 /data/data/com.termux/files/home/.xli/xli_unified.py --headless --task посмотри файл --notify", "args_count": 3}
+[11:50:28] [ERROR] [nvim.xli_run] xli_unified.py not found | {"path": "/data/data/com.termux/files/home/.xli/xli_unified.py"}
+[12:05:19] [ WARN] [nvim.notify]   leap.nvim: the repository has been moved to Codeberg.
+
+  In your package manager, change the url to `https://codeberg.org/andyg/leap.nvim`.
+
+  In lazy.nvim:
+    before:
+    {
+      "ggandor/leap.nvim",
+      -- config...
+    }
+    after:
+    {
+      url = "https://codeberg.org/andyg/leap.nvim",
+      -- config...
+    }
+
+[12:06:08] [ WARN] [nvim.notify]   leap.nvim: the repository has been moved to Codeberg.
+
+  In your package manager, change the url to `https://codeberg.org/andyg/leap.nvim`.
+
+  In lazy.nvim:
+    before:
+    {
+      "ggandor/leap.nvim",
+      -- config...
+    }
+    after:
+    {
+      url = "https://codeberg.org/andyg/leap.nvim",
+      -- config...
+    }
+
+[12:06:13] [ INFO] [nvim.init] XLI PRO v3 integration loaded
+[12:06:16] [DEBUG] [nvim.Xli] Task cancelled (empty)
+[12:08:37] [ INFO] [nvim.XliReload] Reloading
+[12:08:37] [DEBUG] [nvim.xli_run] Starting job | {"cmd": "python3 /data/data/com.termux/files/home/.xli/xli_unified.py --headless --reload-plugins", "args_count": 1}
+[12:08:37] [ INFO] [nvim.xli_run] Job started | {"job_id": 4}
+[12:08:40] [ERROR] [nvim.job.stderr] usage: xli_unified.py [-h] [--task TASK] [--headless]
+[12:08:40] [ERROR] [nvim.job.stderr]                       [--agent {coder,debugger,optimizer}] [--skip-questions]
+[12:08:40] [ERROR] [nvim.job.stderr]                       [--output-format {text,json,vim}] [--notify]
+[12:08:40] [ERROR] [nvim.job.stderr]                       [--mcp-list] [--mcp-start MCP_START]
+[12:08:40] [ERROR] [nvim.job.stderr]                       [--mcp-stop MCP_STOP] [--mcp-info MCP_INFO]
+[12:08:40] [ERROR] [nvim.job.stderr]                       [--debug-file DEBUG_FILE]
+[12:08:40] [ERROR] [nvim.job.stderr] xli_unified.py: error: unrecognized arguments: --reload-plugins
+[12:08:41] [ INFO] [nvim.job.exit] Job exited | {"code": 2, "output_lines": 0}
+[12:08:41] [ERROR] [nvim.job.exit] Non-zero exit code | {"code": 2}
+[12:08:41] [ERROR] [nvim.XliReload] Failed | {"code": 2}
+[12:09:45] [ INFO] [nvim.XliAgent] Agent task | {"agent": "coder", "task": "создай файл лёгкий в папке TESTING и папку"}
+[12:09:45] [DEBUG] [nvim.xli_run] Starting job | {"cmd": "python3 /data/data/com.termux/files/home/.xli/xli_unified.py --headless --agent coder --task создай файл лёгкий в папке TESTING и папку --notify", "args_count": 5}
+[12:09:45] [ INFO] [nvim.xli_run] Job started | {"job_id": 6}
+[12:09:47] [DEBUG] [nvim.job.stdout] [INFO] [main] XLI started
+[12:09:47] [DEBUG] [nvim.job.stdout] [INFO] [headless] Starting
+[12:09:47] [DEBUG] [nvim.job.stdout] [INFO] [env] EnvironmentAdapter initializing
+[12:09:47] [DEBUG] [nvim.job.stdout] [INFO] [env] EnvironmentAdapter ready
+[12:09:47] [DEBUG] [nvim.job.stdout] [INFO] [notify] Notify [info]: XLI: создай файл лёгкий в папке TESTING и па
+[12:09:47] [DEBUG] [nvim.job.stdout] [INFO] XLI: создай файл лёгкий в папке TESTING и папку...
+[12:09:47] [DEBUG] [nvim.job.stdout] [INFO] [core] XliCore initialized
+[12:09:47] [DEBUG] [nvim.job.stdout] [INFO] [core] Starting chain
+[12:09:47] [DEBUG] [nvim.job.stdout] [INFO] [notify] Notify [info]: Clarifying task...
+[12:09:52] [DEBUG] [nvim.job.stdout] [INFO] Clarifying task...
+[12:09:52] [DEBUG] [nvim.job.stdout] [INFO] [questions] Generated 4 questions
+[12:09:52] [DEBUG] [nvim.job.stdout] [INFO] [questionnaire] Starting questionnaire
+[12:09:52] [DEBUG] [nvim.job.stdout] ============================================================
+[12:09:52] [DEBUG] [nvim.job.stdout]  FIRE XLI PRO — Task Clarification 
+[12:09:52] [DEBUG] [nvim.job.stdout] ============================================================
+[12:09:52] [DEBUG] [nvim.job.stdout] ? Как назвать папку внутри TESTING?
+[12:09:52] [DEBUG] [nvim.job.stdout]    Answer [new_folder]: 
+[12:11:25] [ INFO] [nvim.XliHistory] History empty
+[12:11:34] [DEBUG] [nvim.Xli] Task cancelled (empty)
+[12:13:24] [ INFO] [nvim.Xli] Task started | {"task": "создай скрипт"}
+[12:13:24] [DEBUG] [nvim.xli_run] Starting job | {"cmd": "python3 /data/data/com.termux/files/home/.xli/xli_unified.py --headless --task создай скрипт --notify", "args_count": 3}
+[12:13:24] [ INFO] [nvim.xli_run] Job started | {"job_id": 10}
+[12:13:27] [DEBUG] [nvim.job.stdout] [INFO] [main] XLI started
+[12:13:27] [DEBUG] [nvim.job.stdout] [INFO] [headless] Starting
+[12:13:27] [DEBUG] [nvim.job.stdout] [INFO] [env] EnvironmentAdapter initializing
+[12:13:27] [DEBUG] [nvim.job.stdout] [INFO] [env] EnvironmentAdapter ready
+[12:13:27] [DEBUG] [nvim.job.stdout] [INFO] [notify] Notify [info]: XLI: создай скрипт...
+[12:13:27] [DEBUG] [nvim.job.stdout] [INFO] XLI: создай скрипт...
+[12:13:27] [DEBUG] [nvim.job.stdout] [INFO] [core] XliCore initialized
+[12:13:27] [DEBUG] [nvim.job.stdout] [INFO] [core] Starting chain
+[12:13:27] [DEBUG] [nvim.job.stdout] [INFO] [notify] Notify [info]: Clarifying task...
+[12:13:33] [DEBUG] [nvim.job.stdout] [INFO] Clarifying task...
+[12:13:33] [DEBUG] [nvim.job.stdout] [INFO] [questions] Generated 4 questions
+[12:13:33] [DEBUG] [nvim.job.stdout] [INFO] [questionnaire] Starting questionnaire
+[12:13:33] [DEBUG] [nvim.job.stdout] ============================================================
+[12:13:33] [DEBUG] [nvim.job.stdout]  FIRE XLI PRO — Task Clarification 
+[12:13:33] [DEBUG] [nvim.job.stdout] ============================================================
+[12:13:33] [DEBUG] [nvim.job.stdout] ? Какой тип скрипта вам нужен?
+[12:13:33] [DEBUG] [nvim.job.stdout]    1. bash
+[12:13:33] [DEBUG] [nvim.job.stdout]    2. python
+[12:13:33] [DEBUG] [nvim.job.stdout]    3. powershell
+[12:13:33] [DEBUG] [nvim.job.stdout]    4. javascript
+[12:13:33] [DEBUG] [nvim.job.stdout]    Select: 
+[12:14:02] [ INFO] [nvim.job.exit] Job exited | {"code": 143, "output_lines": 21}
+[12:14:02] [ERROR] [nvim.job.exit] Non-zero exit code | {"code": 143}
+[12:14:02] [ERROR] [nvim.Xli] Task failed | {"code": 143}
+[12:14:02] [ INFO] [nvim.job.exit] Job exited | {"code": 143, "output_lines": 17}
+[12:14:02] [ERROR] [nvim.job.exit] Non-zero exit code | {"code": 143}
+[12:14:02] [ERROR] [nvim.XliAgent] Failed | {"agent": "coder", "code": 143}
+[18:33:43] [ WARN] [nvim.notify]   leap.nvim: the repository has been moved to Codeberg.
+
+  In your package manager, change the url to `https://codeberg.org/andyg/leap.nvim`.
+
+  In lazy.nvim:
+    before:
+    {
+      "ggandor/leap.nvim",
+      -- config...
+    }
+    after:
+    {
+      url = "https://codeberg.org/andyg/leap.nvim",
+      -- config...
+    }
+
+[18:33:50] [ INFO] [nvim.init] XLI PRO v3 integration loaded
+[18:33:51] [DEBUG] [nvim.Xli] Task cancelled (empty)
+[18:34:51] [ INFO] [nvim.Xli] Task started | {"task": "Создай скрипт"}
+[18:34:51] [DEBUG] [nvim.xli_run] Starting job | {"cmd": "python3 /data/data/com.termux/files/home/.xli/xli_unified.py --headless --task Создай скрипт --notify", "args_count": 3}
+[18:34:51] [ INFO] [nvim.xli_run] Job started | {"job_id": 5}
+[18:34:54] [DEBUG] [nvim.job.stdout] [INFO] [main] XLI started
+[18:34:54] [DEBUG] [nvim.job.stdout] [INFO] [headless] Starting
+[18:34:54] [DEBUG] [nvim.job.stdout] [INFO] [env] EnvironmentAdapter initializing
+[18:34:54] [DEBUG] [nvim.job.stdout] [INFO] [env] EnvironmentAdapter ready
+[18:34:54] [DEBUG] [nvim.job.stdout] [INFO] [notify] Notify [info]: XLI: Создай скрипт...
+[18:34:54] [DEBUG] [nvim.job.stdout] [INFO] XLI: Создай скрипт...
+[18:34:54] [DEBUG] [nvim.job.stdout] [INFO] [core] XliCore initialized
+[18:34:54] [DEBUG] [nvim.job.stdout] [INFO] [core] Starting chain
+[18:34:54] [DEBUG] [nvim.job.stdout] [INFO] [notify] Notify [info]: Clarifying task...
+[18:35:05] [DEBUG] [nvim.job.stdout] [INFO] Clarifying task...
+[18:35:05] [DEBUG] [nvim.job.stdout] [INFO] [questions] Generated 4 questions
+[18:35:05] [DEBUG] [nvim.job.stdout] [INFO] [questionnaire] Starting questionnaire
+[18:35:05] [DEBUG] [nvim.job.stdout] ============================================================
+[18:35:05] [DEBUG] [nvim.job.stdout]  FIRE XLI PRO — Task Clarification 
+[18:35:05] [DEBUG] [nvim.job.stdout] ============================================================
+[18:35:05] [DEBUG] [nvim.job.stdout] ? Какова основная цель скрипта?
+[18:35:05] [DEBUG] [nvim.job.stdout]    1. Автоматизация задач
+[18:35:05] [DEBUG] [nvim.job.stdout]    2. Обработка данных
+[18:35:05] [DEBUG] [nvim.job.stdout]    3. Сбор информации
+[18:35:05] [DEBUG] [nvim.job.stdout]    4. Другое
+[18:35:05] [DEBUG] [nvim.job.stdout]    Select: 
+[18:36:34] [ INFO] [nvim.job.exit] Job exited | {"code": 143, "output_lines": 21}
+[18:36:34] [ERROR] [nvim.job.exit] Non-zero exit code | {"code": 143}
+[18:36:34] [ERROR] [nvim.Xli] Task failed | {"code": 143}

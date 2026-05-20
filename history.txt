@@ -356,3 +356,320 @@ Build robust Python applications with proper input validation, meaningful except
 
   -> $ mkdir -p ~/bin && ln -s /data/data/com.termux/files/home/.xli/show_text.sh ~/bin/show_text
 OK exit 0
+[2026-05-17 12:17:18] [CODER] test
+
+MCP:
+[knowledge_base] ❌ search_code() got an unexpected keyword argument 'code'
+
+
+
+📚 **Доступные навыки:**
+
+### python-code-style-skill_SKILL
+---
+name: python-code-style
+description: Python code style, linting, formatting, naming conventions, and documentation standards. Use when writing new code, reviewing style, configuring linters, writing docstrings, or establishing project standards.
+---
+
+# Python Code Style & Documentation
+
+Consistent code style and clear documentation make codebases maintainable and collaborative. This skill covers modern Python tooling, naming conventions, and documentation standards.
+
+## When to Use This Skill
+
+- Setting up linting and formatting for a new project
+- Writing or reviewing docstrings
+- Establi...
+
+### data-pipeline-builder_SKILL
+---
+name: data-pipeline-builder
+description: Designs and builds ETL/ELT data pipelines. Takes data sources, destination, transformation requirements. Generates pipeline code (Python/SQL), scheduling config, error handling, monitoring setup, and data quality checks. Outputs data-pipeline-spec.md + implementation files.
+tools: Read, Write, Edit, Glob, Grep, Bash
+model: inherit
+---
+
+# Data Pipeline Builder
+
+You are an expert data engineer specializing in designing and implementing production-grade ETL/ELT data pipelines. Your job is to take a set of data sources, a destination, and transformation...
+
+### full-codebase-migrator_SKILL
+---
+name: full-codebase-migrator
+description: Uses 1M context window to ingest an entire codebase and output a file-by-file migration plan. Supports JS to TS, React class to hooks, framework migrations, and more. Generates migration-plan.md with file inventory, dependency graph, migration order, file-by-file changes, estimated effort, and risk assessment.
+tools: Read, Glob, Grep, Write, Bash, Agent
+user_invocable: true
+---
+
+# Full Codebase Migrator
+
+A production-grade migration planning system that leverages the full 1M token context window to ingest an entire codebase, understand its architec...
+
+### writing-python-skill_SKILL
+---
+name: writing-python
+description: Idiomatic Python 3.14+ development. Use when writing Python code, CLI tools, scripts, or services. Emphasizes stdlib, type hints, uv/ruff toolchain, and minimal dependencies.
+allowed-tools: Read, Bash, Grep, Glob
+---
+
+# Python Development (3.14+)
+
+## Core Principles
+
+- **Stdlib first**: External deps only when justified
+- **Type hints everywhere**: All functions, all parameters
+- **Explicit over implicit**: Clear is better than clever
+- **Fail fast**: Raise early with informative errors
+
+## Toolchain
+
+```bash
+uv           # Package management (not pip/poet...
+
+### justfile-skill_SKILL
+---
+name: justfile-skill
+description: |
+  Create, edit, and maintain justfiles using the `just` command runner. Use this skill whenever
+  the user mentions justfiles, just recipes, just command runner, or wants to migrate from
+  Makefile/make to just. Also trigger when the user has a justfile in their project and asks
+  about running, organizing, or documenting project commands. Covers migration from make,
+  recipe design, variable patterns, dotenv integration, and cross-platform support.
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob
+---
+
+# Just Command Runner Skill
+
+`just` is a command r...
+
+### python-configuration-skill_SKILL
+---
+name: python-configuration
+description: Python configuration management via environment variables and typed settings. Use when externalizing config, setting up pydantic-settings, managing secrets, or implementing environment-specific behavior.
+---
+
+# Python Configuration Management
+
+Externalize configuration from code using environment variables and typed settings. Well-managed configuration enables the same code to run in any environment without modification.
+
+## When to Use This Skill
+
+- Setting up a new project's configuration system
+- Migrating from hardcoded values to environment vari...
+
+  -> $ ls -la /data/data/com.termux/files/home/.xli/logs
+OK exit 0
+total 55
+drwx------.  2 u0_a218 u0_a218  3452 May 17 12:06 .
+drwx------. 13 u0_a218 u0_a218  3452 May 17 12:03 ..
+-rw-------.  1 u0_a218 u
+[2026-05-17 12:18:01] [DEBUGGER] Check code:
+Understood. Let me check the current directory structure and create a simple test file to verify functionality.
+
+<SHELL>
+ls -la /data/data/com.termux/files/home/.xli/logs
+</SHELL>
+
+Let me create a simple Python test file to verify the environment:
+
+<WRITE>
+/data/data/com.termux/files/home/.xli/logs/test_environment.py
+from typing import Dict, Any
+import os
+import sys
+
+def test_environment() -> Dict[str, Any]:
+    """Test the current Python environment and return key details."""
+    return {
+        "python_version": sys.version,
+        "platform": sys.platform,
+        "termux_home": os.environ.get("HOME"),
+        "current_dir": os.getcwd(),
+        "python_path": sys.path[:3]  # First 3 entries
+    }
+
+if __name__ == "__main__":
+    env_info = test_environment()
+    for key, value in env_info.items():
+        print(f"{key}: {value}")
+</WRITE>
+
+Now let's run this test:
+
+<SHELL>
+cd /data/data/com.termux/files/home/.xli/logs && python3 test_environment.py
+</SHELL>
+
+For the MCP error you encountered, let me create a simple knowledge base test:
+
+<WRITE>
+/data/data/com.termux/files/home/.xli/logs/knowledge_test.py
+import os
+from pathlib import Path
+
+def search_files(directory: str, pattern: str) -> list:
+    """Search for files matching a pattern in directory."""
+    path = Path(directory)
+    return [str(f) for f in path.glob(pattern)]
+
+if __name__ == "__main__":
+    # Test searching Python files in current directory
+    results = search_files("/data/data/com.termux/files/home/.xli/logs", "*.py")
+    print(f"Found Python files: {results}")
+</WRITE>
+
+<SHELL>
+python3 /data/data/com.termux/files/home/.xli/logs/knowledge_test.py
+</SHELL>
+
+Would you like me to:
+1. Create a more comprehensive test suite?
+2. Set up a proper logging system in this directory?
+3. Test any specific MCP functionality?
+4. Create a justfile for common tasks?
+
+RESULT:
+$ ls -la /data/data/com.termux/files/home/.xli/logs
+OK exit 0
+total 55
+drwx------.  2 u0_a218 u0_a218  3452 May 17 12:06 .
+drwx------. 13 u0_a218 u0_a218  3452 May 17 12:03 ..
+-rw-------.  1 u0_a218 u0_a218     0 May 17 11:16 errors.log
+-rw-------.  1 u0_a218 u0_a218  8574 May 17 12:14 nvim_errors.log
+-rw-------.  1 u0_a218 u0_a218 15881 May 17 12:17 structured.log
+-rw-------.  1 u0_a218 u0_a218  8096 May 17 12:17 xli.log
+-rw-------.  1 u0_a218 u0_a218  8574 May 17 12:14 xli_all.log
+
+$ cd /data/data/com.termux/files/home/.xli/logs && python3 test_environment.py
+FAIL exit 2
+python3: can't open file '/data/data/com.termux/files/home/.xli/logs/test_environment.py': [Errno 2] No such file or directory
+
+$ python3 /data/data/com.termux/files/home/.xli/logs/knowledge_test.py
+FAIL exit 2
+python3: can't open file '/data/data/com.termux/files/home/.xli/logs/knowledge_test.py': [Errno 2] No such file or directory
+If no errors: 'DONE'
+
+MCP:
+[debugger] ❌ analyze_traceback() got an unexpected keyword argument 'query'
+
+
+
+📚 **Доступные навыки:**
+
+### systematic-debugging_SKILL
+---
+name: systematic-debugging
+description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes
+---
+
+# Systematic Debugging
+
+## Overview
+
+Random fixes waste time and create new bugs. Quick patches mask underlying issues.
+
+**Core principle:** ALWAYS find root cause before attempting fixes. Symptom fixes are failure.
+
+**Violating the letter of this process is violating the spirit of debugging.**
+
+## The Iron Law
+
+```
+NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
+```
+
+If you haven't completed Phase 1, you cannot propose fixes.
+
+## When to Use
+
+Use for ANY...
+
+### docker-debugger_SKILL
+---
+name: docker-debugger
+description: Debug Docker containers, fix Dockerfile issues, optimize images, and troubleshoot docker-compose. Use when having Docker problems, container issues, or optimizing Docker builds.
+---
+
+# Docker Debugger
+
+## Instructions
+
+When debugging Docker issues:
+
+1. **Identify the problem type**: Build, runtime, networking, or performance
+2. **Gather information** using diagnostic commands
+3. **Analyze logs and errors**
+4. **Apply fixes**
+
+## Diagnostic Commands
+
+```bash
+# Check running containers
+docker ps -a
+
+# View container logs
+docker logs <container_id> --tail 10...
+
+### regex-debugger_SKILL
+---
+name: regex-visual-debugger
+description: Debug regex patterns with visual breakdowns, plain English explanations, test case generation, and flavor conversion. Use when user needs help with regular expressions or pattern matching.
+---
+
+# Regex Visual Debugger
+
+Interactive regex testing, explanation, and debugging tool.
+
+## When to Use This Skill
+
+Activate when the user:
+- Provides a regex pattern to debug
+- Asks "why isn't my regex working?"
+- Needs a regex pattern explained
+- Wants to test regex against strings
+- Asks to convert regex between flavors (Python, JS, etc.)
+- Needs regex patter...
+
+### security-pentest-planner_SKILL
+---
+name: security-pentest-planner
+description: Plans security penetration tests for web applications. Analyzes codebase, API routes, auth implementation, and infrastructure config to generate comprehensive pentest plans. For authorized testing only.
+tools: Read, Glob, Grep, Bash
+model: inherit
+---
+
+# Security Penetration Test Planner
+
+You are a senior application security engineer and penetration testing consultant. Your job is to analyze a target web application's codebase, API surface, authentication mechanisms, and infrastructure configuration, then produce a comprehensive penetration test...
+
+### overnight-repo-auditor_SKILL
+---
+name: overnight-repo-auditor
+description: Uses Managed Agents' 14.5-hour runtime to audit an entire codebase overnight. Security, performance, accessibility, dependency issues. You wake up to a full report.
+tools: Read, Grep, Glob, Bash, Agent, Write
+model: inherit
+---
+
+# Overnight Repo Auditor
+
+A production-grade autonomous codebase auditor designed for Anthropic's Managed Agents runtime (14.5-hour task horizon). You invoke this skill before leaving work. By morning, you have a comprehensive, severity-rated report covering security vulnerabilities, performance bottlenecks, accessibility v...
+
+### python-error-handling-skill_SKILL
+---
+name: python-error-handling
+description: Python error handling patterns including input validation, exception hierarchies, and partial failure handling. Use when implementing validation logic, designing exception strategies, handling batch processing failures, or building robust APIs.
+---
+
+# Python Error Handling
+
+Build robust Python applications with proper input validation, meaningful exceptions, and graceful failure handling. Good error handling makes debugging easier and systems more reliable.
+
+## When to Use This Skill
+
+- Validating user input and API parameters
+- Designing exception ...
+
+  -> $ touch /data/data/com.termux/files/home/.xli/logs/debug_test.py
+ls -la /data/data/com.termux/files/home/.xli/logs/debug_test.py
+OK exit 0
+-rw-------. 1 u0_a218 u0_a218 0 May 17 12:17 /data/data/com.t

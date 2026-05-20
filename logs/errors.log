@@ -1,0 +1,6 @@
+[12:17:17] [ERROR] [xli:log_structured:146] [shell] Command failed: exit 2
+[12:17:17] [ERROR] [xli:log_error:154] [shell] Command failed: exit 2
+[12:17:18] [ERROR] [xli:log_structured:146] [shell] Command failed: exit 2
+[12:17:18] [ERROR] [xli:log_error:154] [shell] Command failed: exit 2
+[12:18:01] [ERROR] [xli:log_structured:146] [shell] Command timeout after 30s
+[12:18:01] [ERROR] [xli:log_error:154] [shell] Command timeout after 30s
